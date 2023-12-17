@@ -1,7 +1,6 @@
 package entity;
 
-enum Identity {
-    RANDOM,
+public enum Identity {
     BLACK,
     WHITE
 }

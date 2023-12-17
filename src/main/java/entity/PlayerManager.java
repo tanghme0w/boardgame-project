@@ -1,58 +1,91 @@
 package entity;
 
-import exception.Exception;
+import response.Exception;
+import response.Success;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class PlayerManager {
-    Map<Identity, Player> players;
-    Player setPlayer(Player player) {
-        if (player.id == Identity.RANDOM) {
-            return setPlayerWithRandomIdentity(player);
-        } else return setPlayerWithCustomIdentity(player);
+    Map<Identity, Player> existingPlayers;
+    IdentityOperations identityOperations;
+    PlayerManager() {
+        existingPlayers = new HashMap<>(2);
+        identityOperations = new IdentityOperations();
+    }
+    Player addNewPlayer(Player newPlayer) {
+        AddNewPlayerStrategy strategy;
+        if (newPlayer.id == null) {
+            strategy = new addNewPlayerWithRandomId();
+        } else {
+            strategy = new addNewPlayerWithCustomId();
+        }
+        return strategy.execute(existingPlayers, newPlayer, identityOperations);
+    }
+    void removePlayer(Player newPlayer) {
+        if (!existingPlayers.containsKey(newPlayer.id)) return;
+        else {
+            existingPlayers.remove(newPlayer.id);
+            Success.show("Successfully removed player: "+newPlayer.name);
+        }
     }
     Player getPlayerWithIdentity(Identity id) {
-        return players.get(id);
+        return existingPlayers.get(id);
     }
-    Player removePlayer(Player player) {
+    Boolean roomFull() {
+        return (identityOperations.getAvailableIds(existingPlayers).isEmpty());
     }
-    Player setPlayerWithCustomIdentity(Player player) {
-        if (isIdentityAvailable(player.id)) {
-            players.put(player.id, player);
+}
+
+interface AddNewPlayerStrategy {
+    public Player execute(Map<Identity, Player> existingPlayers, Player newPlayer, IdentityOperations idOps);
+}
+
+class addNewPlayerWithRandomId implements AddNewPlayerStrategy {
+    @Override
+    public Player execute(Map<Identity, Player> existingPlayers, Player newPlayer, IdentityOperations idOps) {
+        Identity randomAvailableIdentity = idOps.getOneRandomAvailableId(existingPlayers);
+        if (randomAvailableIdentity == null) {
+            Exception.warn("Cannot add new player: no available identities. The room is already full. " +
+                    "Please wait until other players exit.");
         } else {
-            Exception.warn("Player register error: the desired identity has already been taken, please change your desired identity or wait until other players exit.");
+            newPlayer.id = randomAvailableIdentity;
+            existingPlayers.put(newPlayer.id, newPlayer);
+            Success.show("Successfully add player: "+newPlayer.name+", player identity: "+newPlayer.id);
         }
-        return player;
+        return newPlayer;
     }
-    Player setPlayerWithRandomIdentity(Player player) {
-        Identity randomAvailableIdentity = getRandomAvailableIdentity();
-        if (randomAvailableIdentity != null) {
-            player.id = randomAvailableIdentity;
-            setPlayerWithCustomIdentity(player);
-            return player;
+}
+
+class addNewPlayerWithCustomId implements AddNewPlayerStrategy {
+    @Override
+    public Player execute(Map<Identity, Player> existingPlayers, Player newPlayer, IdentityOperations idOps) {
+        if (idOps.checkIdAvailability(existingPlayers, newPlayer.id)) {
+            existingPlayers.put(newPlayer.id, newPlayer);
+            Success.show("Successfully add player: "+newPlayer.name+", player identity: "+newPlayer.id);
         } else {
-            Exception.warn("Player register error: no available identities. The room is already full, please wait until other players exit.");
-            return player;
+            Exception.warn("Cannot add new player: the desired identity has already been taken, " +
+                    "please change your desired identity or wait until other players exit.");
         }
+        return newPlayer;
     }
-    Boolean isIdentityAvailable(Identity id) {
-        return Boolean.FALSE;
+}
+
+class IdentityOperations {
+    Boolean checkIdAvailability(Map<Identity, Player> existingPlayers, Identity id) {
+        return ((id != null) && !existingPlayers.containsKey(id));
     }
-    List<Identity> getAvailableIdentities() {
+    List<Identity> getAvailableIds(Map<Identity, Player> existingPlayers) {
         List<Identity> availableIdentities = new ArrayList<>();
         for(Identity id: Identity.values()) {
-            if ((id != Identity.RANDOM) && !players.containsKey(id)) {
+            if (checkIdAvailability(existingPlayers, id)) {
                 availableIdentities.add(id);
             }
         }
         return availableIdentities;
     }
-    Identity getRandomAvailableIdentity() {
+    Identity getOneRandomAvailableId(Map<Identity, Player> existingPlayers) {
         Random rand = new Random();
-        List<Identity> availableIdentities = getAvailableIdentities();
+        List<Identity> availableIdentities = getAvailableIds(existingPlayers);
         int numberOfAvailableIdentities = availableIdentities.size();
         if (numberOfAvailableIdentities == 0) return null;
         else {

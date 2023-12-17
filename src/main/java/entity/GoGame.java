@@ -1,9 +1,7 @@
 package entity;
 
 import ruleset.GoRule;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class GoGame extends BaseGame {
     void initGoGame() {

@@ -1,4 +1,4 @@
-package exception;
+package response;
 
 public class Exception {
     public static void warn(String message) {
