@@ -1,9 +1,9 @@
 package entity;
 
 public class Player {
-    String name;
-    Identity id = null;
-    Integer withdraw_count;
+    public String name;
+    public Identity id = null;
+    public Integer withdraw_count;
     Player(String name, Identity id) {
         this.name = name;
         this.id = id;

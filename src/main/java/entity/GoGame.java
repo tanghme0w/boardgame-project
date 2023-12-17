@@ -11,12 +11,12 @@ public class GoGame extends BaseGame {
         this.ruleset = new GoRule();
     }
     //use default board size
-    GoGame() {
+    public GoGame() {
         this.gameboard = new Board(19);
         initGoGame();
     }
     //use custom board size
-    GoGame(Integer boardSize) {
+    public GoGame(Integer boardSize) {
         this.gameboard = new Board(boardSize);
         initGoGame();
     }

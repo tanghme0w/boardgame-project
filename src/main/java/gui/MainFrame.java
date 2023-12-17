@@ -1,66 +1,164 @@
 package gui;
 
+import entity.Identity;
+import entity.Piece;
+import entity.Player;
+import gui.handler.MouseClickHandler;
+import gui.handler.NewGoGameButtonListener;
+import gui.handler.NewGomokuGameButtonListener;
+import logger.Logger;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.Optional;
-import java.util.ResourceBundle;
-
-import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class MainFrame extends JFrame {
-    private static BoardRenderer boardRenderer;
-    private JPanel mainPanel;
-    private BufferedImage cachedImage;
-    private BufferedImage cachedBackground;
-    public int boardPositionProportion = 4;
-    public static final ResourceBundle resourceBundle =
-            ResourceBundle.getBundle("l10n.DisplayStrings");
+    private int boardSize = 20;
+    private final int cellSize = 30; // size of each cell in the grid
+    private JTextArea player1TextArea = new JTextArea("Player1:\n\nN/A");
+    private JTextArea player2TextArea = new JTextArea("Player2:\n\nN/A");
+    private JTextArea logTextArea = new JTextArea("Log:\n\nN/A");
+    private String inputPrompt = "Input Box: Please delete this message before input.";
+    private JTextArea inputBoxArea = new JTextArea(inputPrompt);
+    private JPanel sidePanel = createSidePanel();
+    private JPanel bottomPanel = createBottomPanel();
+    private JPanel boardPanel = new BoardPanel();
+
+
     public MainFrame() {
-        super("Game");
-        boardRenderer = new BoardRenderer();
-        setSize(960, 600);
-        setLocationRelativeTo(null);
-        mainPanel = new JPanel(true) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                paintMainPanel(g);
+        setTitle("Game Board");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        setSize((20 * 30) + 1000, ((20 + 2) * cellSize));
+        setLocationRelativeTo(null); // center the window
+        add(boardPanel, BorderLayout.CENTER);
+        add(sidePanel, BorderLayout.EAST);
+        add(bottomPanel, BorderLayout.SOUTH);
+    }
+    public String getInput() {
+        String input = inputBoxArea.getText().strip();
+        if (input.equals(inputPrompt)) return null;
+        inputBoxArea.setText(inputPrompt);
+        return input;
+    }
+    public void refresh() {
+        //refresh players info
+        if (Client.game != null) {
+            //update p1 info
+            String p1Info = "Player1\n";
+            Player player1 = Client.game.getPlayerInfo(0);
+            if (player1 == null) {
+                p1Info = p1Info + "N/A";
+            } else {
+                if (player1.equals(Client.game.getCurrentActingPlayer())) {
+                    p1Info = "Player1 (Currently Acting)\n";
+                }
+                String p1Id = player1.id == Identity.BLACK ? "Identity: Black" : "Identity: White";
+                p1Info = p1Info + "Name: " + player1.name + "\n" + p1Id + "\n";
             }
-        };
-        getContentPane().add(mainPanel);
-        mainPanel.setFocusable(true);
-        setVisible(true);
+            player1TextArea.setText(p1Info);
+            //update p2 info
+            String p2Info = "Player2\n";
+            Player player2 = Client.game.getPlayerInfo(1);
+            if (player2 == null) {
+                p2Info = p2Info + "N/A";
+            } else {
+                if (player2.equals(Client.game.getCurrentActingPlayer())) {
+                    p2Info = "Player2 (Currently Acting)\n";
+                }
+                String p2Id = player2.id == Identity.BLACK ? "Identity: Black" : "Identity: White";
+                p2Info = p2Info + "Name: " + player2.name + "\n" + p2Id + "\n";
+            }
+            player2TextArea.setText(p2Info);
+        }
+        //refresh log
+        String logText = "Log:\n";
+        for (String logEntry: Logger.getLog(7)) {
+            logText = logText.concat(logEntry);
+            logText = logText.concat("\n");
+        }
+        logTextArea.setText(logText);
+        //repaint board
+        if (Client.game != null) {
+            if (Client.game.gameboard != null) {
+                boardSize = Client.game.gameboard.size + 1;
+                boardPanel.repaint();
+            }
+        }
+    }
+    private JPanel createBottomPanel() {
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
+        bottomPanel.setPreferredSize(new Dimension(getWidth() - 200, 30));
+        bottomPanel.add(new JButton("Abstain"));
+        bottomPanel.add(new JButton("Surrender"));
+        bottomPanel.add(new JButton("Withdraw"));
+        return bottomPanel;
     }
 
-    public void paintMainPanel(Graphics g0) {
-        int width = mainPanel.getWidth();
-        int height = mainPanel.getHeight();
-        Optional<Graphics2D> backgroundG = Optional.empty();
-        int topInset = mainPanel.getInsets().top;
-        int leftInset = mainPanel.getInsets().left;
-        int rightInset = mainPanel.getInsets().right;
-        int bottomInset = mainPanel.getInsets().bottom;
-        int maxBound = max(width, height);
-        // board
-        int maxSize = (int) (min(width - leftInset - rightInset, height - topInset - bottomInset));
-        int boardX = (width - maxSize) / 8 * boardPositionProportion;
-        int boardY = topInset + (height - topInset - bottomInset - maxSize) / 2;
+    private JPanel createSidePanel() {
+        JPanel sidePanel = new JPanel();
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+        sidePanel.setPreferredSize(new Dimension(1000, getHeight()));
 
-        int panelMargin = (int) (maxSize * 0.02);
-        cachedImage = new BufferedImage(width, height, TYPE_INT_ARGB);
-        Graphics2D g = (Graphics2D) cachedImage.getGraphics();
-        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        // Refactor repeated code into a method
+        sidePanel.add(createTextAreaWithScrollPane(player1TextArea, 160, 100, false));
+        sidePanel.add(createTextAreaWithScrollPane(player2TextArea, 160, 100, false));
+        sidePanel.add(createTextAreaWithScrollPane(logTextArea, 160, 150, false));
 
-        boardRenderer.setLocation(boardX, boardY);
-        boardRenderer.setBoardLength(maxSize, maxSize); // TODO boardSize
-        boardRenderer.setupSizeParameters();
-        boardRenderer.draw(g);
-        g.dispose();
-        g0.drawImage(cachedBackground, 0, 0, null);
-        g0.drawImage(cachedImage, 0, 0, null);
-        g0.dispose();
+        // Add save/load box & buttons
+        sidePanel.add(createTextAreaWithScrollPane(inputBoxArea, 160, 20, true));
+        sidePanel.add(new JButton("             load             "));
+        sidePanel.add(new JButton("             save             "));
+        sidePanel.add(createButton("     new game - Go    ", new NewGoGameButtonListener()));
+        sidePanel.add(createButton("new game - Gomoku", new NewGomokuGameButtonListener()));
+
+        return sidePanel;
+    }
+
+    private JButton createButton(String label, ActionListener actionListener) {
+        JButton button = new JButton(label);
+        button.addActionListener(actionListener);
+        return button;
+    }
+
+    // New method to create a text area with scroll pane
+    private JScrollPane createTextAreaWithScrollPane(JTextArea textArea, int width, int height, boolean editable) {
+        textArea.setEditable(editable);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(width, height));
+        return scrollPane;
+    }
+
+    private class BoardPanel extends JPanel {
+        public BoardPanel() {
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    int x = (int) Math.round((double) e.getX() / cellSize);
+                    int y = (int) Math.round((double) e.getY() / cellSize);
+                    Logger.log("Clicked on " + x + ", " + y);
+                    MouseClickHandler.handle(x, y);
+                }
+            });
+        }
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            drawBoard(g);
+        }
+
+        private void drawBoard(Graphics g) {
+            for (int i = 1; i < boardSize - 1; i++) {
+                for (int j = 1; j < boardSize - 1; j++) {
+                    int x = i * cellSize;
+                    int y = j * cellSize;
+                    g.drawRect(x, y, cellSize, cellSize);
+                }
+            }
+        }
     }
 }

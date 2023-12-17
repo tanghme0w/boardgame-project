@@ -1,26 +1,24 @@
 package gui;
 
-import gui.ConsolePane;
-import gui.MainFrame;
-import response.CustomException;
+import entity.BaseGame;
+import command.*;
 
 import javax.swing.*;
 
 public class Client {
+    public static MoveCommand moveCommand = new MoveCommand();
+    public static AbstainCommand abstainCommand = new AbstainCommand();
+    public static SurrenderCommand surrenderCommand = new SurrenderCommand();
+    public static WithdrawCommand withdrawCommand = new WithdrawCommand();
+    public static BaseGame game;
     public static MainFrame frame;
-    public static ConsolePane consolePane;
-    public static void main(String[] args) {
-        setLookAndFeel();
-        frame = new MainFrame();
+    public static void refresh() {
+        frame.refresh();
     }
-    public static void setLookAndFeel() {
-        try {
-            if (System.getProperty("os.name").contains("Mac")) {
-                System.setProperty("apple.laf.useScreenMenuBar", "true");
-            }
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            CustomException.warn(e.getMessage());
-        }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            frame = new MainFrame();
+            frame.setVisible(true);
+        });
     }
 }

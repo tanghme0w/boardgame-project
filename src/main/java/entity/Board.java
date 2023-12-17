@@ -1,10 +1,11 @@
 package entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Board {
-    Integer size;
-    List<List<Piece>> array;
+    public Integer size;
+    List<List<Piece>> array = new ArrayList<>();
     Player currentActingPlayer;
     Board(Integer size) {
         this.size = size;

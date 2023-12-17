@@ -1,12 +1,13 @@
 package entity;
 
-import response.CustomException;
+import logger.Logger;
 import ruleset.Ruleset;
 
 import java.util.List;
+import java.util.Random;
 
 public class BaseGame {
-    Board gameboard;
+    public Board gameboard;
     PlayerManager playerManager;
     List<Board> boardHistory;
     List<Move> moveHistory;
@@ -14,22 +15,30 @@ public class BaseGame {
     Player playerJoin(Player player) {
         return playerManager.addNewPlayer(player);
     }
-    void playerLeave(Player player) {
+    public void playerLeave(Player player) {
         playerManager.removePlayer(player);
     }
-    void startGame() {
+    public Player getCurrentActingPlayer() {
+        return gameboard.currentActingPlayer;
+    }
+    public Player getPlayerInfo(Integer index) {
+        return playerManager.getPlayerWithIndex(index);
+    }
+    public void startGame() {
         //check if players are enough, if not, generate random player
         if (!playerManager.roomFull()) {
-            CustomException.warn("Room not full, adding random player to the game.");
+            Logger.log("Adding random player to the game.");
+            while (!playerManager.roomFull()) {
+                playerManager.addNewPlayer(PlayerFactory.createPlayer("guest_"+ new Random().nextInt(10000)));
+            }
         }
+        setInitialPlayer();
+    }
+    void setInitialPlayer() {
+        gameboard.currentActingPlayer = playerManager.getPlayerWithIdentity(Identity.BLACK);
     }
     void saveGame() {
-
     }
     void loadGame(String fileName) {
-
-    }
-    void Render() {
-
     }
 }
