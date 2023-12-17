@@ -1,5 +1,6 @@
 package entity;
 
+import response.CustomException;
 import ruleset.Ruleset;
 
 import java.util.List;
@@ -18,6 +19,9 @@ public class BaseGame {
     }
     void startGame() {
         //check if players are enough, if not, generate random player
+        if (!playerManager.roomFull()) {
+            CustomException.warn("Room not full, adding random player to the game.");
+        }
     }
     void saveGame() {
 

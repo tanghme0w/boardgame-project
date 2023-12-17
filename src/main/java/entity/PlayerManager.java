@@ -1,6 +1,6 @@
 package entity;
 
-import response.Exception;
+import response.CustomException;
 import response.Success;
 
 import java.util.*;
@@ -45,7 +45,7 @@ class addNewPlayerWithRandomId implements AddNewPlayerStrategy {
     public Player execute(Map<Identity, Player> existingPlayers, Player newPlayer, IdentityOperations idOps) {
         Identity randomAvailableIdentity = idOps.getOneRandomAvailableId(existingPlayers);
         if (randomAvailableIdentity == null) {
-            Exception.warn("Cannot add new player: no available identities. The room is already full. " +
+            CustomException.warn("Cannot add new player: no available identities. The room is already full. " +
                     "Please wait until other players exit.");
         } else {
             newPlayer.id = randomAvailableIdentity;
@@ -63,7 +63,7 @@ class addNewPlayerWithCustomId implements AddNewPlayerStrategy {
             existingPlayers.put(newPlayer.id, newPlayer);
             Success.show("Successfully add player: "+newPlayer.name+", player identity: "+newPlayer.id);
         } else {
-            Exception.warn("Cannot add new player: the desired identity has already been taken, " +
+            CustomException.warn("Cannot add new player: the desired identity has already been taken, " +
                     "please change your desired identity or wait until other players exit.");
         }
         return newPlayer;

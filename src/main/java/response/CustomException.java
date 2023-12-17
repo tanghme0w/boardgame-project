@@ -1,6 +1,6 @@
 package response;
 
-public class Exception {
+public class CustomException {
     public static void warn(String message) {
         System.out.println(message);
     }
