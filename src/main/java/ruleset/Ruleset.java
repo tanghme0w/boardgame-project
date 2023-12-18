@@ -1,6 +1,6 @@
 package ruleset;
 
-import entity.*;
+import deprecated.entity.*;
 
 import java.util.List;
 public interface Ruleset {

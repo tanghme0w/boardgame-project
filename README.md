@@ -1,2 +1,2 @@
 # boardgame-project
-A board game project for oop course 2023.
+A chess game project for oop course 2023.

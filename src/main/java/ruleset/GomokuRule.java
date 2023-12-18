@@ -1,7 +1,7 @@
 package ruleset;
 
-import entity.Board;
-import entity.Move;
+import deprecated.entity.Board;
+import deprecated.entity.Move;
 
 import java.util.List;
 
