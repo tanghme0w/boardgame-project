@@ -1,6 +1,6 @@
 package deprecated.entity;
 
-import ruleset.GoRule;
+import deprecated.ruleset.GoRule;
 import java.util.ArrayList;
 
 public class GoGame extends ChessGame {

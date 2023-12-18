@@ -2,7 +2,6 @@ package refactor;
 
 import globals.ChessType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -134,11 +133,11 @@ public class Server {
     }
 
     public static void saveBoard(String path) {
-
+        //TODO
     }
 
     public static void loadBoard(String path) {
-
+        //TODO
     }
 
     public static void saveGame(String path) {

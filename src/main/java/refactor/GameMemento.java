@@ -44,7 +44,7 @@ public class GameMemento {
                 this.moveHistory.add(new Move(mv));
             }
         }
-        //copy ruleset
+        //copy deprecated.ruleset
         this.ruleset = ruleset;
     }
 }

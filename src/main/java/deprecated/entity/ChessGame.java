@@ -1,7 +1,7 @@
 package deprecated.entity;
 
 import deprecated.logger.Logger;
-import ruleset.Ruleset;
+import deprecated.ruleset.Ruleset;
 
 import java.util.List;
 import java.util.Random;

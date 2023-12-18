@@ -1,4 +1,4 @@
-package ruleset;
+package deprecated.ruleset;
 
 import deprecated.entity.Board;
 import deprecated.entity.Move;
