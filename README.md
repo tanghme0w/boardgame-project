@@ -1,7 +1,7 @@
 # boardgame-project
 A chess game project for oop course 2023.
 
-## 2.2.0
+## 2.1.3
 - Add metadata for pieces. Currently, we introduce two types of metadata: 
   - LIBERTY (for go game)
   - CONNECTION_COUNT (for gomoku game) 
