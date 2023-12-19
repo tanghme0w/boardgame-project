@@ -10,7 +10,7 @@ public class GoRules implements Ruleset {
     }
 
     @Override
-    public boolean take_step(Board board, List<Board> boardHistory, List<Move> moveHistory, Position position) {
+    public boolean take_step(Board board, List<Board> boardHistory, List<Step> stepHistory, Position position) {
         //validate step
         //suicide prohibited
         //repeating step prohibited
@@ -18,8 +18,8 @@ public class GoRules implements Ruleset {
         //update board history
         boardHistory.add(new Board(board));
         //update move history
-        Move move = new Move(board.nextChessType, position, moveHistory.size() + 1);
-        moveHistory.add(move);
+        Step step = new Step(board.nextChessType, position, stepHistory.size() + 1);
+        stepHistory.add(step);
         return true;
     }
 }

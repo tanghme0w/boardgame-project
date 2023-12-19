@@ -10,7 +10,7 @@ public class ChessGame {
     Map<Player, Identity> playerIdentityMap;
     Identity currentActingIdentity;
     List<Board> boardHistory;
-    List<Move> moveHistory;
+    List<Step> stepHistory;
     Ruleset ruleset;
     //load from gameMemento
     ChessGame(GameMemento gameMemento) {
@@ -18,7 +18,7 @@ public class ChessGame {
         this.identities = gameMemento.identities;
         this.currentActingIdentity = gameMemento.currentActingIdentity;
         this.boardHistory = gameMemento.boardHistory;
-        this.moveHistory = gameMemento.moveHistory;
+        this.stepHistory = gameMemento.stepHistory;
         this.ruleset = gameMemento.ruleset;
     }
 
@@ -32,7 +32,7 @@ public class ChessGame {
         identities.add(new Identity(ChessType.WHITE));
         this.playerIdentityMap = new HashMap<>();
         this.boardHistory = new ArrayList<>();
-        this.moveHistory = new ArrayList<>();
+        this.stepHistory = new ArrayList<>();
         this.ruleset = ruleset;
     }
 

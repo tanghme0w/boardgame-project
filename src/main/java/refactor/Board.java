@@ -4,15 +4,15 @@ import globals.ChessType;
 
 class Piece {
     ChessType chessType;
-    Integer moveCount;
+    Integer stepCount;
     //deep copy constructor - MUST CHECK FOR NULL BEFORE CALLING
     Piece(Piece piece) {
         chessType = piece.chessType;
-        moveCount = piece.moveCount;
+        stepCount = piece.stepCount;
     }
     Piece(ChessType ct, Integer mId) {
         chessType = ct;
-        moveCount = mId;
+        stepCount = mId;
     }
 }
 
@@ -44,8 +44,8 @@ public class Board {
         if(x < 0 || xSize < x || y < 0 || ySize < y ) return null;
         else return pieceArray[x][y] == null ? null : pieceArray[x][y].chessType;
     }
-    public Integer getMoveIdAt(Integer x, Integer y) {
+    public Integer getStepIdAt(Integer x, Integer y) {
         if(x < 0 || xSize < x || y < 0 || ySize < y ) return null;
-        else return pieceArray[x][y] == null ? null : pieceArray[x][y].moveCount;
+        else return pieceArray[x][y] == null ? null : pieceArray[x][y].stepCount;
     }
 }

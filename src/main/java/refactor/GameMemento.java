@@ -8,13 +8,13 @@ public class GameMemento {
     List<Identity> identities;
     Identity currentActingIdentity;
     List<Board> boardHistory;
-    List<Move> moveHistory;
+    List<Step> stepHistory;
     Ruleset ruleset;
     GameMemento(Board board,
                 List<Identity> identities,
                 Identity currentActingIdentity,
                 List<Board> boardHistory,
-                List<Move> moveHistory,
+                List<Step> stepHistory,
                 Ruleset ruleset) {
         //copy board
         this.board = board == null ? null : new Board(board);
@@ -37,11 +37,11 @@ public class GameMemento {
             }
         }
         //copy move history
-        if (moveHistory == null) this.moveHistory = null;
+        if (stepHistory == null) this.stepHistory = null;
         else {
-            this.moveHistory = new ArrayList<>(moveHistory.size());
-            for (Move mv: moveHistory) {
-                this.moveHistory.add(new Move(mv));
+            this.stepHistory = new ArrayList<>(stepHistory.size());
+            for (Step step: stepHistory) {
+                this.stepHistory.add(new Step(step));
             }
         }
         //copy deprecated.ruleset

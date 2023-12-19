@@ -2,17 +2,17 @@ package refactor;
 
 import globals.ChessType;
 
-public class Move {
+public class Step {
     ChessType chessType;
     Position position;
     Integer count;
     //deep copy construct
-    Move(Move move) {
-        chessType = move.chessType;
-        position = new Position(move.position.x, move.position.y);
-        count = move.count;
+    Step(Step step) {
+        chessType = step.chessType;
+        position = new Position(step.position.x, step.position.y);
+        count = step.count;
     }
-    Move(ChessType chessType, Position position, Integer count) {
+    Step(ChessType chessType, Position position, Integer count) {
         this.chessType = chessType;
         this.position = position;
         this.count = count;

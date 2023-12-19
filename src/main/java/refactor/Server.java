@@ -50,7 +50,7 @@ public class Server {
         }
 
         //log & render
-        Logger.log("new " + rule + " game with board size (" + boardSize[0] + ", " + boardSize[1] + ")");
+        Logger.log("New " + rule + " game with board size (" + boardSize[0] + ", " + boardSize[1] + ")");
         render();
     }
 
@@ -74,10 +74,10 @@ public class Server {
 
     public static void playerLogin(Player player) {
         players.add(player);
-        Logger.log("player" + player.name + "has joined the game.");
+        Logger.log(player.name + " has joined the game.");
     }
 
-    public static void move(Position position) {
+    public static void stepAt(Position position) {
         //do nothing if the game hasn't started or has already ended.
         if (!isGameActive) return;
 
@@ -85,13 +85,13 @@ public class Server {
         if (position.x < 1 || position.y < 1 || game.board.xSize < position.x || game.board.ySize < position.y) return;
 
         //execute step on the board
-        if (game.ruleset.take_step(game.board, game.boardHistory, game.moveHistory, position)) {
+        if (game.ruleset.take_step(game.board, game.boardHistory, game.stepHistory, position)) {
             //if step success, switch turn, and reset abstain status
             String chessType = switch (game.currentActingIdentity.chessType) {
                 case BLACK -> "(black)";
                 case WHITE -> "(white)";
             };
-            Logger.log(game.currentActingIdentity.player.name + chessType + " takes move at " + position.x + ", "+ position.y);
+            Logger.log(game.currentActingIdentity.player.name + chessType + " takes step at " + position.x + ", "+ position.y);
             game.currentActingIdentity.hasAbstained = false;
             game.switchTurn();
         }
@@ -156,7 +156,7 @@ public class Server {
 
     public static void withdraw() {
         //if the last move is made by current player
-        if(game.moveHistory.getLast().chessType.equals(game.currentActingIdentity.chessType)) {
+        if(game.stepHistory.getLast().chessType.equals(game.currentActingIdentity.chessType)) {
             //TODO withdraw last move
         } else {
             //if the last move is made by other player
@@ -178,7 +178,7 @@ public class Server {
                 game.identities,
                 game.currentActingIdentity,
                 game.boardHistory,
-                game.moveHistory,
+                game.stepHistory,
                 game.ruleset
         );
     }
