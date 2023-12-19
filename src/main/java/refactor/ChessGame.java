@@ -30,6 +30,9 @@ public class ChessGame {
         identities = new ArrayList<>();
         identities.add(new Identity(ChessType.BLACK));
         identities.add(new Identity(ChessType.WHITE));
+        this.playerIdentityMap = new HashMap<>();
+        this.boardHistory = new ArrayList<>();
+        this.moveHistory = new ArrayList<>();
         this.ruleset = ruleset;
     }
 
@@ -41,8 +44,4 @@ public class ChessGame {
         board.nextChessType = currentActingIdentity.chessType;
     }
 
-    //board history services
-    public void updateBoardHistory() {
-        boardHistory.add(new Board(board));
-    }
 }

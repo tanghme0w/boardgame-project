@@ -1,15 +1,20 @@
 package refactor;
 
+import globals.ChessType;
+
 public class Move {
-    Identity identity;
+    ChessType chessType;
     Position position;
+    Integer count;
     //deep copy construct
     Move(Move move) {
-        identity = new Identity(move.identity);
+        chessType = move.chessType;
         position = new Position(move.position.x, move.position.y);
+        count = move.count;
     }
-    Move(Identity id, Position pose) {
-        identity = id;
-        position = pose;
+    Move(ChessType chessType, Position position, Integer count) {
+        this.chessType = chessType;
+        this.position = position;
+        this.count = count;
     }
 }

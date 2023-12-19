@@ -2,9 +2,9 @@ package deprecated.gui;
 
 import deprecated.entity.Identity;
 import deprecated.entity.Player;
-import deprecated.gui.handler.MouseClickHandler;
-import deprecated.gui.handler.NewGoGameButtonListener;
-import deprecated.gui.handler.NewGomokuGameButtonListener;
+import refactor.client.handler.MouseClickHandler;
+import refactor.client.handler.NewGoGameButtonListener;
+import refactor.client.handler.NewGomokuGameButtonListener;
 import deprecated.logger.Logger;
 
 import javax.swing.*;

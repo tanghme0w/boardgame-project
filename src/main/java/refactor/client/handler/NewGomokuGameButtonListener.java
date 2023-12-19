@@ -1,6 +1,6 @@
-package deprecated.gui.handler;
+package refactor.client.handler;
 
-import deprecated.logger.Logger;
+import refactor.Server;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,6 +8,8 @@ import java.awt.event.ActionListener;
 public class NewGomokuGameButtonListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-        Logger.log("New Gomoku game");
+        //pop input window
+        //new game
+        Server.newGame("go", new int[]{19, 19});
     }
 }

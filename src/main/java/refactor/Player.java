@@ -1,7 +1,7 @@
 package refactor;
 
 public class Player {
-    String name;
+    public String name;
     Player(Player player) {
         name = player.name;
     }

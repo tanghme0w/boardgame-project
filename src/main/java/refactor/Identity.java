@@ -3,10 +3,10 @@ package refactor;
 import globals.ChessType;
 
 public class Identity {
-    Player player;
-    ChessType chessType;
-    Integer withdrawCount;
-    boolean hasAbstained;
+    public Player player;
+    public ChessType chessType;
+    public Integer withdrawCount;
+    public boolean hasAbstained;
     //deep copy construct
     Identity(Identity id) {
         this.player = new Player(id.player);

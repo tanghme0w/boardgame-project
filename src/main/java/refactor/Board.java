@@ -4,23 +4,23 @@ import globals.ChessType;
 
 class Piece {
     ChessType chessType;
-    Integer moveId;
+    Integer moveCount;
     //deep copy constructor - MUST CHECK FOR NULL BEFORE CALLING
     Piece(Piece piece) {
         chessType = piece.chessType;
-        moveId = piece.moveId;
+        moveCount = piece.moveCount;
     }
     Piece(ChessType ct, Integer mId) {
         chessType = ct;
-        moveId = mId;
+        moveCount = mId;
     }
 }
 
 public class Board {
-    Integer xSize;
-    Integer ySize;
+    public Integer xSize;
+    public Integer ySize;
     Piece[][] pieceArray;
-    ChessType nextChessType;
+    public ChessType nextChessType;
     //deep copy construct
     Board(Board board) {
         this.xSize = board.xSize;
@@ -35,17 +35,17 @@ public class Board {
         }
         nextChessType = board.nextChessType;
     }
-    Board(Integer boardSizeX, Integer boardSizeY) {
+    public Board(Integer boardSizeX, Integer boardSizeY) {
         xSize = boardSizeX;
         ySize = boardSizeY;
         pieceArray = new Piece[xSize + 1][ySize + 1];
     }
-    ChessType getChessTypeAt(Integer x, Integer y) {
+    public ChessType getChessTypeAt(Integer x, Integer y) {
         if(x < 0 || xSize < x || y < 0 || ySize < y ) return null;
-        else return pieceArray[x][y].chessType;
+        else return pieceArray[x][y] == null ? null : pieceArray[x][y].chessType;
     }
-    Integer getMoveIdAt(Integer x, Integer y) {
+    public Integer getMoveIdAt(Integer x, Integer y) {
         if(x < 0 || xSize < x || y < 0 || ySize < y ) return null;
-        else return pieceArray[x][y].moveId;
+        else return pieceArray[x][y] == null ? null : pieceArray[x][y].moveCount;
     }
 }
