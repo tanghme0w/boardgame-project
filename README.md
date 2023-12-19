@@ -1,6 +1,9 @@
 # boardgame-project
 A chess game project for oop course 2023.
 
+## 2.1.2
+- Optimize imports
+
 ## 2.1.1
 - Fix minor text issues.
 - Rename move -> step.

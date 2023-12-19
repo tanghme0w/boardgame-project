@@ -1,8 +1,5 @@
 package refactor.client.handler;
 
-import deprecated.entity.GoGame;
-import deprecated.gui.Client;
-import deprecated.logger.Logger;
 import refactor.Server;
 
 import java.awt.event.ActionEvent;

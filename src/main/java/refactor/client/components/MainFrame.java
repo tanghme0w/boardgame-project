@@ -2,8 +2,6 @@ package refactor.client.components;
 
 import globals.Config;
 import refactor.Board;
-import refactor.Player;
-import refactor.RenderVO;
 import refactor.client.handler.*;
 
 import javax.swing.*;
