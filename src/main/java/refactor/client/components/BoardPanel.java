@@ -3,6 +3,7 @@ package refactor.client.components;
 import globals.ChessType;
 import globals.Config;
 import refactor.Board;
+import refactor.Position;
 import refactor.client.handler.MouseClickHandler;
 
 import javax.swing.*;
@@ -36,7 +37,7 @@ public class BoardPanel extends JPanel {
                 int x = i * Config.CELL_SIZE;
                 int y = j * Config.CELL_SIZE;
                 g.drawRect(x, y, Config.CELL_SIZE, Config.CELL_SIZE);
-                ChessType chessType = board.getChessTypeAt(i, j);
+                ChessType chessType = board.getChessTypeAt(new Position(i, j));
                 if (chessType == null) continue;
                 else if (chessType == ChessType.BLACK) {
                     g.setColor(Color.BLACK);
