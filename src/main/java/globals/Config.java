@@ -1,6 +1,7 @@
 package globals;
 
 public class Config {
+    public static boolean SHOW_STEP_COUNT = true;
     public static Integer MAX_BOARD_SIZE = 19;
     public static Integer DEFAULT_BOARD_SIZE = 19;
     public static Integer CELL_SIZE = 30;

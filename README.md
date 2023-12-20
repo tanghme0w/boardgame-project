@@ -1,6 +1,9 @@
 # boardgame-project
 A chess game project for oop course 2023.
 
+## 2.3.3
+- Add step count rendering logic. User can configure whether to show step count or not.
+
 ## 2.3.2
 - Fix issues regarding liberty judgement in the Go game. Go game can now function properly.
 

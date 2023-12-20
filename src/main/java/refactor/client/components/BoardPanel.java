@@ -33,11 +33,12 @@ public class BoardPanel extends JPanel {
     }
 
     private void drawBoard(Graphics g) {
-        for (int i = 1; i < board.xSize; i++) {
-            for (int j = 1; j < board.ySize; j++) {
+        for (int i = 1; i <= board.xSize; i++) {
+            for (int j = 1; j <= board.ySize; j++) {
                 int x = i * Config.CELL_SIZE;
                 int y = j * Config.CELL_SIZE;
-                g.drawRect(x, y, Config.CELL_SIZE, Config.CELL_SIZE);
+                g.setColor(Color.BLACK);
+                if (i != board.xSize && j != board.ySize) g.drawRect(x, y, Config.CELL_SIZE, Config.CELL_SIZE);
                 ChessType chessType = board.getChessTypeAt(new Position(i, j));
                 if (chessType == null) continue;
                 else if (chessType == ChessType.BLACK) {
@@ -46,7 +47,16 @@ public class BoardPanel extends JPanel {
                     g.setColor(Color.WHITE);
                 }
                 g.fillOval(x - Config.CELL_SIZE / 2, y - Config.CELL_SIZE / 2, Config.CELL_SIZE, Config.CELL_SIZE);
-                g.setColor(Color.BLACK);
+                //show step count
+                if (Config.SHOW_STEP_COUNT) {
+                    if (chessType == ChessType.BLACK) {
+                        g.setColor(Color.WHITE);
+                    } else if (chessType == ChessType.WHITE) {
+                        g.setColor(Color.BLACK);
+                    }
+                    String stepIdString = Integer.toString(board.getStepIdAt(new Position(i, j)));
+                    g.drawChars(stepIdString.toCharArray(), 0, stepIdString.length(), x - 4 * stepIdString.length(), y + 5);
+                }
             }
         }
     }
