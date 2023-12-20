@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 public class BoardPanel extends JPanel {
     Board board;
     public BoardPanel() {
+        setBackground(Color.ORANGE);
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

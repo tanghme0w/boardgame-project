@@ -48,13 +48,22 @@ public class Server {
                 game.currentActingIdentity = id;
             }
         }
+        //and set next chess type of the board as well
+        game.board.nextChessType = ChessType.BLACK;
+
 
         //log & render
         Logger.log("New " + rule + " game with board size (" + boardSize[0] + ", " + boardSize[1] + ")");
         render();
     }
 
-    public static void endGame(Identity winner) {
+    public static void endGame(ChessType winnerChessType) {
+        //get winner identity
+        Identity winner = null;
+        for (Identity id: game.identities) {
+            if (id.chessType.equals(winnerChessType))
+                winner = id;
+        }
         if (winner == null) {
             Logger.log("Game Over: tie.");
             render();
@@ -65,8 +74,9 @@ public class Server {
                 case BLACK -> "black";
                 case WHITE -> "white";
             };
-            String winningIdentity = winnerName + "(" + winningSide + ")";
-            Logger.log("Game Over: " + winningIdentity + "wins");
+            String winningIdentity = winnerName + " (" + winningSide + ") ";
+            Logger.log("Game Over: " + winningIdentity + " wins");
+            render();
             Client.showEndgameMessage(new EndGameVO(winningIdentity + "wins!"));
         }
         isGameActive = false;
@@ -82,19 +92,32 @@ public class Server {
         if (!isGameActive) return;
 
         //validate position coordinates
-        if (position.x < 1 || position.y < 1 || game.board.xSize < position.x || game.board.ySize < position.y) return;
+        if (game.board.outOfBound(position)) return;
 
         //execute step on the board
         StepResult stepResult = game.ruleset.takeStep(game.board, position, game.stepHistory.size() + 1, game.boardHistory);
-        if (!stepResult.gameOver) {
-            //if step success, switch turn, and reset abstain status
+        if (stepResult.stepSuccess) {
+            //write log
             String chessType = switch (game.currentActingIdentity.chessType) {
                 case BLACK -> " (black) ";
                 case WHITE -> " (white) ";
             };
             Logger.log(game.currentActingIdentity.player.name + chessType + " takes step at " + position.x + ", "+ position.y);
+            //reset abstain status
             game.currentActingIdentity.hasAbstained = false;
+            //update step history
+            game.stepHistory.push(new Step(game.board.nextChessType, position, game.stepHistory.size() + 1));
+            //update board status
+            game.board = stepResult.boardAfterStep;
+            //switch turn
             game.switchTurn();
+            //update board history
+            game.boardHistory.push(new Board(stepResult.boardAfterStep));
+        }
+
+        //if game is over, call endGame
+        if (stepResult.gameOver) {
+            endGame(stepResult.winner);
         }
 
         //render
@@ -118,13 +141,8 @@ public class Server {
         if (gameEnd) {
             Logger.log("All players have abstained, the game ends.");
             // find the winner
-            ChessType winnerChessType = game.ruleset.scanBoard(game.board).winner;
-            for (Identity id: game.identities) {
-                if (id.chessType.equals(winnerChessType)) {
-                    endGame(id); return;
-                }
-            }
-            endGame(null); return;
+            endGame(game.ruleset.scanBoard(game.board).winner);
+            return;
         }
 
         //if the game does not end, change the current acting player
@@ -139,11 +157,10 @@ public class Server {
         //do nothing if the game hasn't started or has already ended.
         if (!isGameActive) return;
 
-        //find the other side and declare victory
-        for (Identity id: game.identities) {
-            if(!id.equals(game.currentActingIdentity)) {
-                endGame(id);
-            }
+        //declare victory for the other side
+        switch (game.currentActingIdentity.chessType) {
+            case BLACK -> endGame(ChessType.WHITE);
+            case WHITE -> endGame(ChessType.BLACK);
         }
     }
 

@@ -42,8 +42,10 @@ public class Board {
         //same board = same size && chess type equals everywhere
         if (!board.xSize.equals(this.xSize) || !board.ySize.equals(this.ySize)) return false;
         for (int i = 0; i < board.pieceArray.length; i++) {
-            for (int j = 1; j<= board.pieceArray[i].length; j++) {
-                if (!board.pieceArray[i][j].chessType.equals(this.pieceArray[i][j].chessType)) return false;
+            for (int j = 0; j < board.pieceArray[i].length; j++) {
+                if (this.pieceArray[i][j] == null && board.pieceArray[i][j] == null) continue;
+                if (this.pieceArray[i][j] == null || board.pieceArray[i][j] == null) return false;
+                else if (!board.pieceArray[i][j].chessType.equals(this.pieceArray[i][j].chessType)) return false;
             }
         }
         return true;
