@@ -1,6 +1,10 @@
 # boardgame-project
 A chess game project for oop course 2023.
 
+## 2.4.0
+- Delete stepHistory attribute.
+- Add withdraw feature.
+
 ## 2.3.3
 - Add step count rendering logic. User can configure whether to show step count or not.
 
