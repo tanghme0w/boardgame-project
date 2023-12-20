@@ -9,7 +9,7 @@ public class GoRules implements Ruleset {
 
     @Override
     public BoardScanResult scanBoard(Board board) {
-        return null;
+        return new BoardScanResult();
     }
 
     @Override
@@ -24,7 +24,7 @@ public class GoRules implements Ruleset {
 
         //remove dead pieces
         for (Position p: position.connectedPositions()) {
-            if (isOpponentPiece(p) && libertyCount(p) == 1) {
+            if (isOpponentPiece(p) && libertyCount(p) == 0) {
                 removePieces(p);
             }
         }
@@ -55,12 +55,8 @@ public class GoRules implements Ruleset {
         return new StepResult(true, true, boardCache, scanBoard(boardCache).winner);
     }
 
-    private boolean isAllyPiece(Position position) {
-        return boardCache.pieceExistAt(position) && boardCache.nextChessType.equals(boardCache.getChessTypeAt(position));
-    }
-
     private boolean isOpponentPiece(Position position) {
-        return boardCache.pieceExistAt(position) && boardCache.nextChessType.equals(boardCache.getChessTypeAt(position));
+        return boardCache.pieceExistAt(position) && !boardCache.nextChessType.equals(boardCache.getChessTypeAt(position));
     }
 
     private int libertyCount(Position position) {
@@ -79,7 +75,7 @@ public class GoRules implements Ruleset {
                 //for empty space, add liberty count
                 if (!boardCache.pieceExistAt(p)) liberty++;
                 //for unvisited allies, push to stack
-                else if (isAllyPiece(p)) traverseStack.push(p);
+                else if (boardCache.getChessTypeAt(p).equals(boardCache.getChessTypeAt(position))) traverseStack.push(p);
             }
         }
         return liberty;
@@ -87,13 +83,14 @@ public class GoRules implements Ruleset {
 
     private void removePieces(Position position) {
         Stack<Position> traverseStack = new Stack<>();
+        ChessType chessTypeToBeRemoved = boardCache.getChessTypeAt(position);
         traverseStack.push(position);
         while(!traverseStack.isEmpty()) {
             Position currentVisitingPosition = traverseStack.pop();
             for(Position p: currentVisitingPosition.connectedPositions()) {
-                if (boardCache.outOfBound(p)) continue;
+                if (!boardCache.pieceExistAt(p)) continue;
                 //for unvisited allies, push to stack
-                if (isAllyPiece(p)) traverseStack.push(p);
+                if (boardCache.getChessTypeAt(p).equals(chessTypeToBeRemoved)) traverseStack.push(p);
             }
             boardCache.removePieceAt(currentVisitingPosition);
         }

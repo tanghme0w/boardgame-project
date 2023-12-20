@@ -22,7 +22,7 @@ public class Position {
         return new Position(this.x - 1, this.y);
     }
     public Position down() {
-        return new Position(this.x - 1, this.y);
+        return new Position(this.x + 1, this.y);
     }
     public Position left() {
         return new Position(this.x, this.y - 1);

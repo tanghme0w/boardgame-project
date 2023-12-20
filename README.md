@@ -1,6 +1,9 @@
 # boardgame-project
 A chess game project for oop course 2023.
 
+## 2.3.2
+- Fix issues regarding liberty judgement in the Go game. Go game can now function properly.
+
 ## 2.3.1
 - Add new global config argument: DEFAULT_BOARD_SIZE
 - Apply orange color to BoardPanel.
