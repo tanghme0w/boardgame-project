@@ -10,14 +10,14 @@ public class GomokuRules implements Ruleset {
     }
 
     @Override
-    public StepResult takeStep(Board board, Position position, Integer stepCount, Stack<Board> boardHistory) {
+    public StepResult takeStep(Board board, Position position, Stack<Board> boardHistory) {
         this.boardCache = new Board(board);
 
         //landing on other pieces prohibited
         if (boardCache.pieceExistAt(position)) return new StepResult(false, false, board, null);
 
         //update board
-        boardCache.addPieceAt(position, boardCache.nextChessType, stepCount);
+        boardCache.addPieceAt(position, boardCache.nextChessType, boardHistory.size() + 1);
 
         //if 5-connected pieces are formed, return current player as winner
         if (isFiveConnected(position)) return new StepResult(true, true, boardCache, boardCache.nextChessType);

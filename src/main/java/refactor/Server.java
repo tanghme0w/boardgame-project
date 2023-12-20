@@ -95,8 +95,10 @@ public class Server {
         if (game.board.outOfBound(position)) return;
 
         //execute step on the board
-        StepResult stepResult = game.ruleset.takeStep(game.board, position, game.stepHistory.size() + 1, game.boardHistory);
+        StepResult stepResult = game.ruleset.takeStep(game.board, position, game.boardHistory);
         if (stepResult.stepSuccess) {
+            //update board history
+            game.boardHistory.push(new Board(game.board));
             //write log
             String chessType = switch (game.currentActingIdentity.chessType) {
                 case BLACK -> " (black) ";
@@ -105,14 +107,10 @@ public class Server {
             Logger.log(game.currentActingIdentity.player.name + chessType + " takes step at " + position.x + ", "+ position.y);
             //reset abstain status
             game.currentActingIdentity.hasAbstained = false;
-            //update step history
-            game.stepHistory.push(new Step(game.board.nextChessType, position, game.stepHistory.size() + 1));
             //update board status
             game.board = stepResult.boardAfterStep;
             //switch turn
             game.switchTurn();
-            //update board history
-            game.boardHistory.push(new Board(stepResult.boardAfterStep));
         }
 
         //if game is over, call endGame
@@ -165,13 +163,20 @@ public class Server {
     }
 
     public static void withdraw() {
-        //if the last move is made by current player
-        if(game.stepHistory.getLast().chessType.equals(game.currentActingIdentity.chessType)) {
-            //TODO withdraw last move
-        } else {
-            //if the last move is made by other player
-            //TODO withdraw two moves
+        //accumulate withdraw count
+        if (game.currentActingIdentity.withdrawCount.equals(Config.MAX_WITHDRAW_TIMES)) {
+            Logger.log(game.currentActingIdentity.player.name + " cannot withdraw step: maximum withdraw limit reached.");
+            render();
+            return;
         }
+        game.currentActingIdentity.withdrawCount++;
+        //pop history until the popped out move belongs to the current player.
+        Board boardHistoryEntry = game.boardHistory.pop();
+        while (boardHistoryEntry.nextChessType != game.currentActingIdentity.chessType) {
+            boardHistoryEntry = game.boardHistory.pop();
+        }
+        game.board = boardHistoryEntry;
+        render();
     }
 
     public static void saveBoard(String path) {
@@ -188,7 +193,6 @@ public class Server {
                 game.identities,
                 game.currentActingIdentity,
                 game.boardHistory,
-                game.stepHistory,
                 game.ruleset
         );
     }
