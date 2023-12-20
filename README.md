@@ -1,6 +1,9 @@
 # boardgame-project
 A chess game project for oop course 2023.
 
+## 2.5.0
+- Add random game simulation feature.
+
 ## 2.4.0
 - Delete stepHistory attribute.
 - Add withdraw feature.

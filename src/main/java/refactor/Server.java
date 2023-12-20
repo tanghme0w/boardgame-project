@@ -51,10 +51,18 @@ public class Server {
         //and set next chess type of the board as well
         game.board.nextChessType = ChessType.BLACK;
 
-
         //log & render
         Logger.log("New " + rule + " game with board size (" + boardSize[0] + ", " + boardSize[1] + ")");
         render();
+
+        if (Config.RANDOM_STEP_TEST) {
+            int count = 0;
+            while (isGameActive) {
+                stepAt(new Position((new Random().nextInt(Config.DEFAULT_BOARD_SIZE)) + 1, (new Random().nextInt(Config.DEFAULT_BOARD_SIZE)) + 1));
+                count++;
+                //if (count > 200) endGame(null);
+            }
+        }
     }
 
     public static void endGame(ChessType winnerChessType) {
@@ -104,7 +112,7 @@ public class Server {
                 case BLACK -> " (black) ";
                 case WHITE -> " (white) ";
             };
-            Logger.log(game.currentActingIdentity.player.name + chessType + " takes step at " + position.x + ", "+ position.y);
+            Logger.log(game.currentActingIdentity.player.name + chessType + " takes step at " + position.x + ", "+ position.y + " (Step #" + (game.boardHistory.size()+1) + ")");
             //reset abstain status
             game.currentActingIdentity.hasAbstained = false;
             //update board status
@@ -210,7 +218,7 @@ public class Server {
     }
 
     //render player info, game board, and logs.
-    private static void render() {
+    static void render() {
         Client.render(new RenderVO(game.identities, game.currentActingIdentity, game.board, Logger.getLog(Config.MAX_LOG_ENTRIES)));
     }
 }
