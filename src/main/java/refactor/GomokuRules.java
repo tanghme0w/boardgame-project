@@ -6,7 +6,7 @@ public class GomokuRules implements Ruleset {
     Board boardCache;
     @Override
     public BoardScanResult scanBoard(Board board) {
-        return null;
+        return new BoardScanResult();
     }
 
     @Override
