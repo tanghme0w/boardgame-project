@@ -1,5 +1,6 @@
 package refactor.client.handler;
 
+import globals.Config;
 import refactor.Server;
 
 import java.awt.event.ActionEvent;
@@ -10,6 +11,6 @@ public class NewGoGameButtonListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         //pop input box
         //start game
-        Server.newGame("go", new int[]{19, 19});
+        Server.newGame("go", new int[]{Config.DEFAULT_BOARD_SIZE, Config.DEFAULT_BOARD_SIZE});
     }
 }

@@ -26,7 +26,7 @@ public class MainFrame extends JFrame {
         setTitle("Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        setSize(((Config.MAX_BOARD_SIZE + 3) * Config.CELL_SIZE) + Config.SIDE_PANEL_WIDTH,
+        setSize(((Config.MAX_BOARD_SIZE + 1) * Config.CELL_SIZE) + Config.SIDE_PANEL_WIDTH,
                 (Config.MAX_BOARD_SIZE + 3) * Config.CELL_SIZE);
         setLocationRelativeTo(null); //center the window
 

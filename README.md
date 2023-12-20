@@ -1,6 +1,11 @@
 # boardgame-project
 A chess game project for oop course 2023.
 
+## 2.3.1
+- Add new global config argument: DEFAULT_BOARD_SIZE
+- Apply orange color to BoardPanel.
+- Minor adjustment on BoardPanel size so that it looks more harmonious.
+
 ## 2.3.0
 - Add step logic for Gomoku game.
 - Server refactor: change the input parameter of gameEnd from identity to chessType.
