@@ -15,13 +15,12 @@ public class GoRules implements Ruleset {
     @Override
     public StepResult takeStep(Board board, Position position, Integer stepCount, Stack<Board> boardHistory) {
         boardCache = board;
-        ChessType actingChessType = board.nextChessType;
 
         //landing on existing piece prohibited
         if (boardCache.pieceExistAt(position)) return new StepResult(false, false, board, null);
 
         //try adding new piece to board
-        boardCache.addPieceAt(position, actingChessType, stepCount);
+        boardCache.addPieceAt(position, boardCache.nextChessType, stepCount);
 
         //remove dead pieces
         for (Position p: position.connectedPositions()) {
