@@ -14,7 +14,7 @@ public class GoRules implements Ruleset {
 
     @Override
     public StepResult takeStep(Board board, Position position, Integer stepCount, Stack<Board> boardHistory) {
-        boardCache = board;
+        boardCache = new Board(board);
 
         //landing on existing piece prohibited
         if (boardCache.pieceExistAt(position)) return new StepResult(false, false, board, null);
