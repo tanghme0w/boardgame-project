@@ -58,7 +58,7 @@ public class Board {
         return (position.x < 1 || xSize < position.x || position.y < 1 || ySize < position.y);
     }
     public boolean pieceExistAt(Position position) {
-        return pieceArray[position.x][position.y] != null;
+        return !outOfBound(position) && pieceArray[position.x][position.y] != null;
     }
     public void addPieceAt(Position position, ChessType chessType, Integer stepCount) {
         if(outOfBound(position) || pieceExistAt(position)) return;
