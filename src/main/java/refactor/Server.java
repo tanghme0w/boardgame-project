@@ -85,11 +85,12 @@ public class Server {
         if (position.x < 1 || position.y < 1 || game.board.xSize < position.x || game.board.ySize < position.y) return;
 
         //execute step on the board
-        if (game.ruleset.take_step(game.board, game.boardHistory, game.stepHistory, position)) {
+        StepResult stepResult = game.ruleset.takeStep(game.board, position, game.stepHistory.size() + 1, game.boardHistory);
+        if (!stepResult.gameOver) {
             //if step success, switch turn, and reset abstain status
             String chessType = switch (game.currentActingIdentity.chessType) {
-                case BLACK -> "(black)";
-                case WHITE -> "(white)";
+                case BLACK -> " (black) ";
+                case WHITE -> " (white) ";
             };
             Logger.log(game.currentActingIdentity.player.name + chessType + " takes step at " + position.x + ", "+ position.y);
             game.currentActingIdentity.hasAbstained = false;
@@ -104,8 +105,10 @@ public class Server {
         //do nothing if the game hasn't started or has already ended.
         if (!isGameActive) return;
 
-        //if all players have abstained, game ends
+        //set abstain status for current player
         game.currentActingIdentity.hasAbstained = true;
+
+        //if all players have abstained, game ends
         boolean gameEnd = true;
         for(Identity id: game.identities) {
             gameEnd &= id.hasAbstained;
@@ -114,24 +117,14 @@ public class Server {
         //if the game ends, go to endGame operation
         if (gameEnd) {
             Logger.log("All players have abstained, the game ends.");
-            //for gomoku game, abstain twice means tie
-            if (game.ruleset.getClass() == GomokuRules.class) {
-                endGame(null); return;
-            }
-            //for go game, abstain twice means we can begin determining the winner
-            else if (game.ruleset.getClass() == GoRules.class) {
-                ChessType winnerChessType = ((GoRules)game.ruleset).determine_winner(game.board);
-                if (winnerChessType == null) {
-                    endGame(null); return;
-                }
-                else {
-                    for (Identity id: game.identities) {
-                        if (id.chessType.equals(winnerChessType)) {
-                            endGame(id); return;
-                        }
-                    }
+            // find the winner
+            ChessType winnerChessType = game.ruleset.scanBoard(game.board).winner;
+            for (Identity id: game.identities) {
+                if (id.chessType.equals(winnerChessType)) {
+                    endGame(id); return;
                 }
             }
+            endGame(null); return;
         }
 
         //if the game does not end, change the current acting player

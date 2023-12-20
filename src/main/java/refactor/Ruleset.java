@@ -1,7 +1,8 @@
 package refactor;
 
-import java.util.List;
+import java.util.Stack;
 
 public interface Ruleset {
-    boolean take_step(Board board, List<Board> boardHistory, List<Step> stepHistory, Position position);
+    BoardScanResult scanBoard(Board board);
+    StepResult takeStep(Board board, Position position, Integer stepCount, Stack<Board> boardHistory);
 }

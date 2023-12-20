@@ -9,8 +9,8 @@ public class ChessGame {
     List<Identity> identities;
     Map<Player, Identity> playerIdentityMap;
     Identity currentActingIdentity;
-    List<Board> boardHistory;
-    List<Step> stepHistory;
+    Stack<Board> boardHistory;
+    Stack<Step> stepHistory;
     Ruleset ruleset;
     //load from gameMemento
     ChessGame(GameMemento gameMemento) {
@@ -31,8 +31,8 @@ public class ChessGame {
         identities.add(new Identity(ChessType.BLACK));
         identities.add(new Identity(ChessType.WHITE));
         this.playerIdentityMap = new HashMap<>();
-        this.boardHistory = new ArrayList<>();
-        this.stepHistory = new ArrayList<>();
+        this.boardHistory = new Stack<>();
+        this.stepHistory = new Stack<>();
         this.ruleset = ruleset;
     }
 

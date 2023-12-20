@@ -2,13 +2,14 @@ package refactor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class GameMemento {
     Board board;
     List<Identity> identities;
     Identity currentActingIdentity;
-    List<Board> boardHistory;
-    List<Step> stepHistory;
+    Stack<Board> boardHistory;
+    Stack<Step> stepHistory;
     Ruleset ruleset;
     GameMemento(Board board,
                 List<Identity> identities,
@@ -31,17 +32,17 @@ public class GameMemento {
         //copy board history
         if (boardHistory == null) this.boardHistory = null;
         else {
-            this.boardHistory = new ArrayList<>(boardHistory.size());
+            this.boardHistory = new Stack<>();
             for (Board bd: boardHistory) {
-                this.boardHistory.add(new Board(bd));
+                this.boardHistory.push(new Board(bd));
             }
         }
         //copy move history
         if (stepHistory == null) this.stepHistory = null;
         else {
-            this.stepHistory = new ArrayList<>(stepHistory.size());
+            this.stepHistory = new Stack<>();
             for (Step step: stepHistory) {
-                this.stepHistory.add(new Step(step));
+                this.stepHistory.push(new Step(step));
             }
         }
         //copy deprecated.ruleset

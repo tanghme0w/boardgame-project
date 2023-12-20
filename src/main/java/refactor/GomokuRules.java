@@ -1,10 +1,15 @@
 package refactor;
 
-import java.util.List;
+import java.util.Stack;
 
 public class GomokuRules implements Ruleset {
     @Override
-    public boolean take_step(Board board, List<Board> boardHistory, List<Step> stepHistory, Position position) {
-        return false;
+    public BoardScanResult scanBoard(Board board) {
+        return null;
+    }
+
+    @Override
+    public StepResult takeStep(Board board, Position position, Integer stepCount, Stack<Board> boardHistory) {
+        return null;
     }
 }
