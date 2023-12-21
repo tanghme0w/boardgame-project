@@ -1,7 +1,7 @@
 package refactor;
 
 public class EndGameVO {
-    String message;
+    public String message;
     EndGameVO(String message) {
         this.message = message;
     }

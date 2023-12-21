@@ -54,7 +54,8 @@ public class Client {
         return playerText;
     }
 
-    public static void showEndgameMessage(EndGameVO endGameVO) {
-        //TODO pop a window
+    public static void popUpMessage(EndGameVO endGameVO) {
+        JFrame frame = new JFrame("End of game");
+        JOptionPane.showMessageDialog(frame, endGameVO.message);
     }
 }

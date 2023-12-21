@@ -38,7 +38,7 @@ public class MainFrame extends JFrame {
         add(bottomPanel, BorderLayout.SOUTH);
     }
     public void setPlayerText(Integer id, List<String> textLines) {
-        StringBuilder finalText = new StringBuilder("Player" + id + "\n");
+        StringBuilder finalText = new StringBuilder();
         for (String text: textLines) {
             finalText.append(text).append("\n");
         }
@@ -46,7 +46,7 @@ public class MainFrame extends JFrame {
     }
 
     public void setLogText(List<String> textLines) {
-        StringBuilder finalText = new StringBuilder("Log\n");
+        StringBuilder finalText = new StringBuilder();
         for (String text: textLines) {
             finalText.append("**").append(text).append("\n");
         }
@@ -67,10 +67,10 @@ public class MainFrame extends JFrame {
         //init player info area
         playerInfoArea = new ArrayList<>();
         for (int i = 0; i < Config.MAX_PLAYERS; i++) {
-            playerInfoArea.add(new JTextArea("Player" + i));
+            playerInfoArea.add(new JTextArea());
         }
         //init log area
-        logArea = new JTextArea("Log");
+        logArea = new JTextArea();
         //init buttons & register action listeners
         List<JButton> sidePanelButtons = new ArrayList<>();
         saveGameButton = new JButton("save game"); saveGameButton.addActionListener(new SaveGameButtonListener());

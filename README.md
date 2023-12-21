@@ -1,6 +1,9 @@
 # boardgame-project
 A chess game project for oop course 2023.
 
+## 2.6.0
+- Add pop-up window components.
+
 ## 2.5.0
 - Add random game simulation feature.
 

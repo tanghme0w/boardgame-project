@@ -75,7 +75,7 @@ public class Server {
         if (winner == null) {
             Logger.log("Game Over: tie.");
             render();
-            Client.showEndgameMessage(new EndGameVO("It's a tie!"));
+            Client.popUpMessage(new EndGameVO("It's a tie!"));
         } else {
             String winnerName = winner.player.name;
             String winningSide = switch (winner.chessType) {
@@ -85,7 +85,7 @@ public class Server {
             String winningIdentity = winnerName + " (" + winningSide + ") ";
             Logger.log("Game Over: " + winningIdentity + " wins");
             render();
-            Client.showEndgameMessage(new EndGameVO(winningIdentity + "wins!"));
+            Client.popUpMessage(new EndGameVO(winningIdentity + "wins!"));
         }
         isGameActive = false;
     }
@@ -112,7 +112,7 @@ public class Server {
                 case BLACK -> " (black) ";
                 case WHITE -> " (white) ";
             };
-            Logger.log(game.currentActingIdentity.player.name + chessType + " takes step at " + position.x + ", "+ position.y + " (Step #" + (game.boardHistory.size()+1) + ")");
+            Logger.log(game.currentActingIdentity.player.name + chessType + " takes step at " + position.x + ", "+ position.y + " (Step #" + (game.boardHistory.size()) + ")");
             //reset abstain status
             game.currentActingIdentity.hasAbstained = false;
             //update board status

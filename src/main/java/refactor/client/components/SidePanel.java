@@ -12,9 +12,13 @@ public class SidePanel extends JPanel {
         setPreferredSize(new Dimension(Config.SIDE_PANEL_WIDTH, getHeight()));
 
         // Refactor repeated code into a method
+        int index = 1;
         for (JTextArea playerInfoArea: playerInfoAreas) {
+            add(new JLabel("Player" + index));
             add(createTextAreaWithScrollPane(playerInfoArea, Config.SIDE_PANEL_WIDTH, getHeight() / 4, false));
+            index++;
         }
+        add(new JLabel("Log"));
         add(createTextAreaWithScrollPane(logInfoArea, Config.SIDE_PANEL_WIDTH, getHeight() / 2, false));
 
         // Add buttons
