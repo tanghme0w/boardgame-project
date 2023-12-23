@@ -109,11 +109,7 @@ public class Server {
             //update board history
             game.boardHistory.push(new Board(game.board));
             //write log
-            String chessType = switch (game.currentActingIdentity.chessType) {
-                case BLACK -> " (black) ";
-                case WHITE -> " (white) ";
-            };
-            Logger.log(game.currentActingIdentity.player.name + chessType + " takes step at " + position.x + ", "+ position.y + " (Step #" + (game.boardHistory.size()) + ")");
+            Logger.log(game.currentActingIdentity.player.name + game.currentActingIdentity.chessType.string() + " takes step at " + position.x + ", "+ position.y + " (Step #" + (game.boardHistory.size()) + ")");
             //reset abstain status
             game.currentActingIdentity.hasAbstained = false;
             //update board status
@@ -185,6 +181,11 @@ public class Server {
             boardHistoryEntry = game.boardHistory.pop();
         }
         game.board = boardHistoryEntry;
+
+        Logger.log(game.currentActingIdentity.player.name + " (" + game.currentActingIdentity.chessType.string() + ") " + " has redrawn step #" + (game.boardHistory.size() + 1));
+
+        //reactivate the game if game has ended.
+        isGameActive = true;
         render();
     }
 
@@ -232,6 +233,10 @@ public class Server {
 
         //activate game status
         isGameActive = true;
+
+        //if game is already over, pop up message
+        BoardScanResult scanResult = game.ruleset.scanBoard(game.board);
+        if(scanResult.gameOver) endGame(scanResult.winner);
 
         render();
     }

@@ -12,7 +12,13 @@ public class GomokuRules implements Ruleset {
 
     @Override
     public BoardScanResult scanBoard(Board board) {
-        return new BoardScanResult();
+        //scan the whole board for winning pieces
+        for (int i = 1; i <= board.xSize; i++) {
+            for (int j = 1; j <= board.ySize; j++) {
+                if(isFiveConnected(new Position(i, j))) return new BoardScanResult(true, board.getChessTypeAt(new Position(i, j)));
+            }
+        }
+        return new BoardScanResult(false, null);
     }
 
     @Override
@@ -31,10 +37,6 @@ public class GomokuRules implements Ruleset {
         return new StepResult(true, false, boardCache, null);
     }
 
-    private boolean isAllyPiece(Position position) {
-        return boardCache.pieceExistAt(position) && boardCache.nextChessType.equals(boardCache.getChessTypeAt(position));
-    }
-
     enum Direction {
         UP,
         DOWN,
@@ -49,7 +51,7 @@ public class GomokuRules implements Ruleset {
     private int countTowards(Position p, Direction d) {
         Position tempPosition = new Position(p.x, p.y);
         int count = 0;
-        while (isAllyPiece(tempPosition)) {
+        while (boardCache.getChessTypeAt(p).equals(boardCache.getChessTypeAt(tempPosition))) {
             count++;
             tempPosition = switch (d) {
                 case UP -> tempPosition.up();
@@ -66,6 +68,7 @@ public class GomokuRules implements Ruleset {
     }
 
     private boolean isFiveConnected(Position position) {
+        if(!boardCache.pieceExistAt(position)) return false;
         //scan vertical
         if (countTowards(position, Direction.UP) + countTowards(position, Direction.DOWN) - 1 >= 5) return true;
         //scan horizontal

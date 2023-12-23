@@ -1,6 +1,9 @@
 # boardgame-project
 A chess game project for oop course 2023.
 
+# 2.7.1
+- Add string() method to ChessType, more convenient for display.
+
 ## 2.7.0
 - Add load/save game feature. (without checking legitimacy)
 

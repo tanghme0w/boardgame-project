@@ -12,14 +12,6 @@ public class ChessGame implements Serializable {
     Identity currentActingIdentity;
     Stack<Board> boardHistory;
     Ruleset ruleset;
-    //load from gameMemento
-    ChessGame(GameMemento gameMemento) {
-        this.board = gameMemento.board;
-        this.identities = gameMemento.identities;
-        this.currentActingIdentity = gameMemento.currentActingIdentity;
-        this.boardHistory = gameMemento.boardHistory;
-        this.ruleset = gameMemento.ruleset;
-    }
 
     //start brand-new game
     ChessGame(Integer boardSizeX, Integer boardSizeY, Ruleset ruleset) {
