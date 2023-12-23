@@ -10,6 +10,11 @@ public class GoRules implements Ruleset {
     List<Board> boardHistory;
 
     @Override
+    public String getRuleName() {
+        return "Go";
+    }
+
+    @Override
     public BoardScanResult scanBoard(Board board) {
         return new BoardScanResult();
     }

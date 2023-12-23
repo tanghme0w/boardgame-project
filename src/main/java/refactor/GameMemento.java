@@ -35,7 +35,7 @@ public class GameMemento {
                 this.boardHistory.push(new Board(bd));
             }
         }
-        //copy deprecated.ruleset
+        //copy ruleset
         this.ruleset = ruleset;
     }
 }

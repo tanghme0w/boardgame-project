@@ -2,7 +2,9 @@ package refactor;
 
 import globals.ChessType;
 
-public class Identity {
+import java.io.Serializable;
+
+public class Identity implements Serializable {
     public Player player;
     public ChessType chessType;
     public Integer withdrawCount;

@@ -1,6 +1,12 @@
 # boardgame-project
 A chess game project for oop course 2023.
 
+## 2.7.0
+- Add load/save game feature. (without checking legitimacy)
+
+## 2.6.1
+- Remove Step class as it is never used.
+
 ## 2.6.0
 - Add pop-up window components.
 

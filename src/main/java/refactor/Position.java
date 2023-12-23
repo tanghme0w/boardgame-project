@@ -1,9 +1,10 @@
 package refactor;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Position {
+public class Position implements Serializable {
     Integer x;
     Integer y;
     public Position(Integer x, Integer y) {

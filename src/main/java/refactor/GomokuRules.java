@@ -4,6 +4,12 @@ import java.util.Stack;
 
 public class GomokuRules implements Ruleset {
     Board boardCache;
+
+    @Override
+    public String getRuleName() {
+        return "Gomoku";
+    }
+
     @Override
     public BoardScanResult scanBoard(Board board) {
         return new BoardScanResult();

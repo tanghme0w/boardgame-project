@@ -2,9 +2,10 @@ package refactor;
 
 import globals.ChessType;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class ChessGame {
+public class ChessGame implements Serializable {
     Board board;
     List<Identity> identities;
     Map<Player, Identity> playerIdentityMap;
@@ -40,5 +41,4 @@ public class ChessGame {
         currentActingIdentity = identities.get(nextIdentityIndex);
         board.nextChessType = currentActingIdentity.chessType;
     }
-
 }

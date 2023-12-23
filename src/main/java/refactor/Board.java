@@ -2,7 +2,9 @@ package refactor;
 
 import globals.ChessType;
 
-class Piece {
+import java.io.Serializable;
+
+class Piece implements Serializable {
     ChessType chessType;
     Integer stepCount;
 
@@ -18,7 +20,7 @@ class Piece {
     }
 }
 
-public class Board {
+public class Board implements Serializable {
     public Integer xSize;
     public Integer ySize;
     Piece[][] pieceArray;

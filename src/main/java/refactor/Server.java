@@ -4,6 +4,7 @@ import globals.ChessType;
 import globals.Config;
 import refactor.client.Client;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -188,7 +189,12 @@ public class Server {
     }
 
     public static void saveBoard(String path) {
-        //TODO
+        try (FileOutputStream fileOut = new FileOutputStream(path)) {
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(game.board);
+        } catch (Exception e) {
+            System.out.printf(e.getMessage());
+        }
     }
 
     public static void loadBoard(String path) {
@@ -196,25 +202,38 @@ public class Server {
     }
 
     public static void saveGame(String path) {
-        GameMemento memento = new GameMemento(
-                game.board,
-                game.identities,
-                game.currentActingIdentity,
-                game.boardHistory,
-                game.ruleset
-        );
+        try (FileOutputStream fileOut = new FileOutputStream(path)) {
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(game);
+        } catch (Exception e) {
+            System.out.printf(e.getMessage());
+        }
     }
 
     public static void loadGame(String path) {
-        //TODO load from file and acquire GameMemento
-        GameMemento gameMemento = null;
-        //recover game
-        game = new ChessGame(gameMemento);
+        try (FileInputStream fileIn = new FileInputStream(path)) {
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            game = (ChessGame) in.readObject();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        Logger.log("loading new" + game.ruleset.getRuleName() + " game from: " + path);
+        Logger.log("All existing players will be cleared");
+
+        //clear current existing players
+        players = new ArrayList<>();
+
         //recover players & identity map
         for (Identity id: game.identities) {
             playerLogin(id.player);
             game.playerIdentityMap.put(id.player, id);
         }
+
+        //activate game status
+        isGameActive = true;
+
+        render();
     }
 
     //render player info, game board, and logs.
