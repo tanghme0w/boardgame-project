@@ -7,30 +7,23 @@ import java.awt.*;
 import java.util.List;
 
 public class SidePanel extends JPanel {
-    SidePanel(List<JTextArea> playerInfoAreas, JTextArea logInfoArea, List<JButton> buttons) {
+    SidePanel(List<JTextArea> playerInfoAreas, JTextArea logInfoArea, Integer actingPlayerIndex) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(Config.SIDE_PANEL_WIDTH, getHeight()));
 
-        // Refactor repeated code into a method
-        int index = 1;
+        Integer index = 0;
         for (JTextArea playerInfoArea: playerInfoAreas) {
-            add(new JLabel("Player" + index));
-            add(createTextAreaWithScrollPane(playerInfoArea, Config.SIDE_PANEL_WIDTH, getHeight() / 4, false));
+            PlayerPanel playerPanel = new PlayerPanel(playerInfoArea, index, index.equals(actingPlayerIndex));
+            playerPanel.setPreferredSize(new Dimension(Config.SIDE_PANEL_WIDTH, 150));
+            playerPanel.setMaximumSize(new Dimension(Config.SIDE_PANEL_WIDTH, 150)); // Set maximum size to prevent expansion
+            add(playerPanel);
             index++;
         }
-        add(new JLabel("Log"));
-        add(createTextAreaWithScrollPane(logInfoArea, Config.SIDE_PANEL_WIDTH, getHeight() / 2, false));
 
-        // Add buttons
-        for (JButton button: buttons) {
-            add(button);
-        }
-    }
+        add(Box.createVerticalGlue());
 
-    private JScrollPane createTextAreaWithScrollPane(JTextArea textArea, int width, int height, boolean editable) {
-        textArea.setEditable(editable);
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(width, height));
-        return scrollPane;
+        LogPanel logPanel = new LogPanel(logInfoArea);
+        logPanel.setMaximumSize(new Dimension(Config.SIDE_PANEL_WIDTH, 200));
+        add(logPanel);
     }
 }

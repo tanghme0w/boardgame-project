@@ -156,33 +156,35 @@ public class Server {
         render();
     }
 
-    public static void surrender() {
+    public static void surrender(Integer playerIndex) {
         //do nothing if the game hasn't started or has already ended.
         if (!isGameActive) return;
 
         //declare victory for the other side
-        switch (game.currentActingIdentity.chessType) {
+        switch (game.playerIdentityMap.get(players.get(playerIndex)).chessType) {
             case BLACK -> endGame(ChessType.WHITE);
             case WHITE -> endGame(ChessType.BLACK);
         }
     }
 
-    public static void withdraw() {
+    public static void withdraw(Integer playerIndex) {
         //accumulate withdraw count
-        if (game.currentActingIdentity.withdrawCount.equals(Config.MAX_WITHDRAW_TIMES)) {
-            Logger.log(game.currentActingIdentity.player.name + " cannot withdraw step: maximum withdraw limit reached.");
+        Identity actionIdentity = game.playerIdentityMap.get(players.get(playerIndex));
+        if (actionIdentity.withdrawCount.equals(Config.MAX_WITHDRAW_TIMES)) {
+            Logger.log(actionIdentity.player.name + " cannot withdraw step: maximum withdraw limit reached.");
             render();
             return;
         }
-        game.currentActingIdentity.withdrawCount++;
+        actionIdentity.withdrawCount++;
         //pop history until the popped out move belongs to the current player.
         Board boardHistoryEntry = game.boardHistory.pop();
-        while (boardHistoryEntry.nextChessType != game.currentActingIdentity.chessType) {
+        while (boardHistoryEntry.nextChessType != actionIdentity.chessType) {
             boardHistoryEntry = game.boardHistory.pop();
         }
         game.board = boardHistoryEntry;
+        game.currentActingIdentity = getCurrentActingIdentityWithChessType(game.board.nextChessType);
 
-        Logger.log(game.currentActingIdentity.player.name + " (" + game.currentActingIdentity.chessType.string() + ") " + " has redrawn step #" + (game.boardHistory.size() + 1));
+        Logger.log(actionIdentity.player.name + " (" + actionIdentity.chessType.string() + ") " + " has redrawn step #" + (game.boardHistory.size() + 1));
 
         //reactivate the game if game has ended.
         isGameActive = true;
@@ -243,6 +245,13 @@ public class Server {
 
     //render player info, game board, and logs.
     static void render() {
-        Client.render(new RenderVO(game.identities, game.currentActingIdentity, game.board, Logger.getLog(Config.MAX_LOG_ENTRIES)));
+        Client.render(new RenderVO(players, game.identities, game.currentActingIdentity, game.board, Logger.getLog(Config.MAX_LOG_ENTRIES)));
+    }
+
+    private static Identity getCurrentActingIdentityWithChessType(ChessType chessType) {
+        for (Identity identity: game.identities) {
+            if (identity.chessType == chessType) return identity;
+        }
+        return null;
     }
 }

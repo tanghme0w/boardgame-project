@@ -12,6 +12,7 @@ public class GomokuRules implements Ruleset {
 
     @Override
     public BoardScanResult scanBoard(Board board) {
+        boardCache = board;
         //scan the whole board for winning pieces
         for (int i = 1; i <= board.xSize; i++) {
             for (int j = 1; j <= board.ySize; j++) {

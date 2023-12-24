@@ -1,6 +1,13 @@
 # boardgame-project
 A chess game project for oop course 2023.
 
+# TODO
+- Cancel handler classes, define action listeners within their corresponding components.
+
+# 2.8.0
+- Add both side withdraw & surrender feature.
+- Fix bugs about gomoku boardScan function.
+
 # 2.7.1
 - Add string() method to ChessType, more convenient for display.
 

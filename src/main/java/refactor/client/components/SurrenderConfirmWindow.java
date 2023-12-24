@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class SurrenderConfirmWindow {
-    public static void pop() {
+    public static void pop(Integer playerIndex) {
         // Create frame
         JFrame frame = new JFrame("Surrender");
 
@@ -25,7 +25,7 @@ public class SurrenderConfirmWindow {
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Server.surrender();
+                Server.surrender(playerIndex);
                 frame.dispose();
             }
         });

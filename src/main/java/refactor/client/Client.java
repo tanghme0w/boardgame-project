@@ -29,6 +29,10 @@ public class Client {
         //construct log info
         mainFrame.setLogText(renderVO.log);
 
+        //repaint side panel
+        mainFrame.setCurrentActingPlayerIndex(renderVO.players.indexOf(renderVO.currentActingIdentity.player));
+        mainFrame.refreshSidePanel();
+
         //repaint board
         mainFrame.repaintBoard(renderVO.board);
     }
