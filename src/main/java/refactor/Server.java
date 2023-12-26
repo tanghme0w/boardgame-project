@@ -1,5 +1,6 @@
 package refactor;
 
+import globals.BoardMode;
 import globals.ChessType;
 import globals.Config;
 import refactor.client.Client;
@@ -61,7 +62,7 @@ public class Server {
             while (isGameActive) {
                 stepAt(new Position((new Random().nextInt(Config.DEFAULT_BOARD_SIZE)) + 1, (new Random().nextInt(Config.DEFAULT_BOARD_SIZE)) + 1));
                 count++;
-                //if (count > 200) endGame(null);
+                if (count > Config.RANDOM_STEP_NUMBER) break;
             }
         }
     }
@@ -76,7 +77,7 @@ public class Server {
         if (winner == null) {
             Logger.log("Game Over: tie.");
             render();
-            Client.popUpMessage(new EndGameVO("It's a tie!"));
+            Client.popUpMessage(new PromptVO("It's a tie!"));
         } else {
             String winnerName = winner.player.name;
             String winningSide = switch (winner.chessType) {
@@ -86,7 +87,7 @@ public class Server {
             String winningIdentity = winnerName + " (" + winningSide + ") ";
             Logger.log("Game Over: " + winningIdentity + " wins");
             render();
-            Client.popUpMessage(new EndGameVO(winningIdentity + "wins!"));
+            Client.popUpMessage(new PromptVO(winningIdentity + "wins!"));
         }
         isGameActive = false;
     }
@@ -144,6 +145,14 @@ public class Server {
         if (gameEnd) {
             Logger.log("All players have abstained, the game ends.");
             // find the winner
+            // if this is a go game, prompt users to remove dead pieces
+            if (game.ruleset.getRuleName().equals("Go")) {
+                Client.popUpMessage(new PromptVO("Game has ended, please click on dead pieces to remove them.\n" +
+                        "Click on the confirm button on the bottom left when you are done."));
+                render();
+                Client.removeDeadPieces(new RenderVO(players, game.identities, game.currentActingIdentity, game.board, Logger.getLog(Config.MAX_LOG_ENTRIES)));
+                return;
+            }
             endGame(game.ruleset.scanBoard(game.board).winner);
             return;
         }
@@ -188,6 +197,19 @@ public class Server {
 
         //reactivate the game if game has ended.
         isGameActive = true;
+        render();
+    }
+
+    public static void removeDeadPiecesAt(Position position) {
+        ((GoRules)game.ruleset).removePieces(game.board, position);
+        Logger.log("Action: try to remove dead pieces at " + position.x + "," + position.y);
+        render();
+    }
+
+    public static void confirmRemoveDeadPieces(Board board) {
+        Logger.log("Action: confirm remove dead pieces");
+        Client.boardMode = BoardMode.NORMAL;
+        endGame(game.ruleset.scanBoard(game.board).winner);
         render();
     }
 

@@ -1,8 +1,7 @@
 package refactor.client;
 
-import refactor.EndGameVO;
-import refactor.Identity;
-import refactor.RenderVO;
+import globals.BoardMode;
+import refactor.*;
 import refactor.client.components.MainFrame;
 
 import javax.swing.*;
@@ -11,6 +10,7 @@ import java.util.List;
 
 public class Client {
     public static MainFrame mainFrame;
+    public static BoardMode boardMode = BoardMode.NORMAL;
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             mainFrame = new MainFrame();
@@ -34,7 +34,10 @@ public class Client {
         mainFrame.refreshSidePanel();
 
         //repaint board
-        mainFrame.repaintBoard(renderVO.board);
+        mainFrame.repaintBoard(renderVO.board, boardMode);
+
+        //repaint bottom panel if necessary
+        mainFrame.refreshBottomPanel(boardMode);
     }
 
     private static List<String> getPlayerStrings(RenderVO renderVO, Identity id) {
@@ -58,8 +61,13 @@ public class Client {
         return playerText;
     }
 
-    public static void popUpMessage(EndGameVO endGameVO) {
+    public static void popUpMessage(PromptVO promptVO) {
         JFrame frame = new JFrame("End of game");
-        JOptionPane.showMessageDialog(frame, endGameVO.message);
+        JOptionPane.showMessageDialog(frame, promptVO.message);
+    }
+
+    public static void removeDeadPieces(RenderVO renderVO) {
+        boardMode = BoardMode.REMOVE;
+        render(renderVO);
     }
 }

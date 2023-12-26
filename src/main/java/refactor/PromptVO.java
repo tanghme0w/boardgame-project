@@ -1,8 +1,8 @@
 package refactor;
 
-public class EndGameVO {
+public class PromptVO {
     public String message;
-    EndGameVO(String message) {
+    PromptVO(String message) {
         this.message = message;
     }
 }

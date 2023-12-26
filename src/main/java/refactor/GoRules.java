@@ -1,8 +1,13 @@
 package refactor;
 
+import globals.BoardMode;
 import globals.ChessType;
+import refactor.client.Client;
 
+import java.awt.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 public class GoRules implements Ruleset {
@@ -16,7 +21,69 @@ public class GoRules implements Ruleset {
 
     @Override
     public BoardScanResult scanBoard(Board board) {
-        return new BoardScanResult();
+        //check if there are available moves left
+        boolean gameEnd = !hasRemainingPosition(board.nextChessType);
+        ChessType winningChessType = findWinner(board);
+        return new BoardScanResult(gameEnd, winningChessType);
+    }
+
+    private ChessType findWinner(Board board) {
+        boolean[][] visited = new boolean[board.xSize + 1][board.ySize + 1];
+        Map<ChessType, Integer> scores = new HashMap<>();
+        //initialize scoreboard
+        for (ChessType chessType: ChessType.values()) {
+            scores.put(chessType, 0);
+        }
+        //count all scores
+        for (int i = 1; i <= board.xSize; i++) {
+            for (int j = 1; j <= board.ySize; j++) {
+                if (visited[i][j]) continue;
+                visited[i][j] = true;
+                Position currentPosition = new Position(i, j);
+                Stack<Position> positions = new Stack<>();
+                positions.push(currentPosition);
+                //if is black, search for all adjacent black pieces and add black point, do the same for white
+                if (board.pieceExistAt(currentPosition)) {
+                    ChessType currentChessType = board.getChessTypeAt(currentPosition);
+                    while (!positions.isEmpty()) {
+                        Position position = positions.pop();
+                        for (Position p: position.connectedPositions()) {
+                            if (board.outOfBound(p) || visited[p.x][p.y]) continue;
+                            if (currentChessType.equals(board.getChessTypeAt(p))) {
+                                visited[p.x][p.y] = true;
+                                positions.push(p);
+                                scores.put(currentChessType, scores.get(currentChessType) + 1);
+                            }
+                        }
+                    }
+                } else {
+                    ChessType surroundingChessType = null;
+                    Integer count = 0;
+                    boolean isExclusive = true;
+                    while (!positions.isEmpty()) {
+                        Position position = positions.pop();
+                        for (Position p: position.connectedPositions()) {
+                            if (board.outOfBound(p)) continue;
+                            if (board.pieceExistAt(p)) {
+                                if (surroundingChessType == null) {
+                                    surroundingChessType = board.getChessTypeAt(p);
+                                } else if (!surroundingChessType.equals(board.getChessTypeAt(p))) {
+                                    isExclusive = false;
+                                    count = 0;
+                                }
+                            } else {
+                                if(visited[p.x][p.y]) continue;
+                                visited[p.x][p.y] = true;
+                                positions.push(p);
+                                if (isExclusive) count++;
+                            }
+                        }
+                    }
+                    if (surroundingChessType != null) scores.put(surroundingChessType, scores.get(surroundingChessType) + count);
+                }
+            }
+        }
+        return scores.get(ChessType.BLACK) > scores.get(ChessType.WHITE) ? ChessType.BLACK : ChessType.WHITE;
     }
 
     @Override
@@ -58,16 +125,22 @@ public class GoRules implements Ruleset {
             case BLACK -> ChessType.WHITE;
             case WHITE -> ChessType.BLACK;
         };
+        if (hasRemainingPosition(opponentChessType)) return new StepResult(true, false, boardCache, null);
+        //no available position left, find the winner and end the game
+        else return new StepResult(true, true, boardCache, scanBoard(boardCache).winner);
+    }
+
+    private boolean hasRemainingPosition(ChessType chessType) {
         for (Integer i = 1; i <= boardCache.xSize; i++) {
             for (Integer j = 1; j <= boardCache.ySize; j++) {
                 //if there are remaining available positions, return step result and continue the game
-                if (isAvailablePosition(new Position(i, j), opponentChessType)) {
-                    return new StepResult(true, false, boardCache, null);
+                if (isAvailablePosition(new Position(i, j), chessType)) {
+                    return true;
                 }
             }
         }
         //no available position left, find the winner and end the game
-        return new StepResult(true, true, boardCache, scanBoard(boardCache).winner);
+        return false;
     }
 
     private boolean isAvailablePosition(Position position, ChessType chessType) {
@@ -121,7 +194,8 @@ public class GoRules implements Ruleset {
         return liberty;
     }
 
-    private void removePieces(Board board, Position position) {
+    public void removePieces(Board board, Position position) {
+        if (!board.pieceExistAt(position)) return;
         Stack<Position> traverseStack = new Stack<>();
         ChessType chessTypeToBeRemoved = board.getChessTypeAt(position);
         traverseStack.push(position);

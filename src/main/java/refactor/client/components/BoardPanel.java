@@ -1,28 +1,46 @@
 package refactor.client.components;
 
+import globals.BoardMode;
 import globals.ChessType;
 import globals.Config;
 import refactor.Board;
 import refactor.Position;
+import refactor.Server;
 import refactor.client.handler.MouseClickHandler;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class BoardPanel extends JPanel {
     Board board;
-    public BoardPanel() {
+    MouseListener stepMouseListener = new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            super.mouseClicked(e);
+            int x = (int) Math.round((double) e.getX() / Config.CELL_SIZE);
+            int y = (int) Math.round((double) e.getY() / Config.CELL_SIZE);
+            MouseClickHandler.handle(x, y);
+        }
+    };
+
+    MouseListener removePieceMouseListener = new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            super.mouseClicked(e);
+            int x = (int) Math.round((double) e.getX() / Config.CELL_SIZE);
+            int y = (int) Math.round((double) e.getY() / Config.CELL_SIZE);
+            Server.removeDeadPiecesAt(new Position(x, y));
+        }
+    };
+
+    public BoardPanel(BoardMode mode) {
         setBackground(Color.ORANGE);
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                int x = (int) Math.round((double) e.getX() / Config.CELL_SIZE);
-                int y = (int) Math.round((double) e.getY() / Config.CELL_SIZE);
-                MouseClickHandler.handle(x, y);
-            }
+        addMouseListener(switch (mode) {
+            case NORMAL -> stepMouseListener;
+            case REMOVE -> removePieceMouseListener;
         });
     }
 

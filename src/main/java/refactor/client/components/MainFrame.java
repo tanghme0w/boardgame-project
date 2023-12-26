@@ -1,11 +1,15 @@
 package refactor.client.components;
 
+import globals.BoardMode;
 import globals.Config;
 import refactor.Board;
+import refactor.Server;
 import refactor.client.handler.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,13 +56,17 @@ public class MainFrame extends JFrame {
         logArea.setText(String.valueOf(finalText));
     }
 
-    public void repaintBoard(Board board) {
+    public void repaintBoard(Board board, BoardMode mode) {
+        remove(boardPanel);
+        boardPanel = new BoardPanel(mode);
         boardPanel.board = board;
-        boardPanel.repaint();
+        add(boardPanel);
+        this.revalidate();
+        this.repaint();
     }
 
     private void initBoardPanel() {
-        boardPanel = new BoardPanel();
+        boardPanel = new BoardPanel(BoardMode.NORMAL);
         boardPanel.board = new Board(Config.MAX_BOARD_SIZE, Config.MAX_BOARD_SIZE);
     }
 
@@ -85,6 +93,28 @@ public class MainFrame extends JFrame {
                 currentActingPlayerIndex
         );
         add(sidePanel, BorderLayout.EAST);
+        this.revalidate();
+        this.repaint();
+    }
+
+    public void refreshBottomPanel(BoardMode mode) {
+        remove(bottomPanel);
+        if (mode.equals(BoardMode.NORMAL)) {
+            initBottomPanel();
+        } else if (mode.equals(BoardMode.REMOVE)) {
+            remove(bottomPanel);
+            JButton confirmRemoveButton = new JButton("Confirm. Let's see who is the winner!");
+            confirmRemoveButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Server.confirmRemoveDeadPieces(boardPanel.board);
+                }
+            });
+            List<JButton> buttons = new ArrayList<>();
+            buttons.add(confirmRemoveButton);
+            bottomPanel = new BottomPanel(buttons);
+        }
+        add(bottomPanel, BorderLayout.SOUTH);
         this.revalidate();
         this.repaint();
     }
