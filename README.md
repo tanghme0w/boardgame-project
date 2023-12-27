@@ -40,7 +40,7 @@ A chess game project for oop course 2023.
 
 ## 2.3.0
 - Add step logic for Gomoku game.
-- Server refactor: change the input parameter of gameEnd from identity to chessType.
+- Server refactor: change the input parameter of gameEnd from identity to stoneColor.
 - Server refactor: make code cleaner for Server.surrender(), Server.stepAt() and Server.abstain().
 - Fix bug: error handling null pieces when comparing boards.
 - Fix bug: server does not set board.nextChessType when game starts.
