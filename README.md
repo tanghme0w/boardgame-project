@@ -10,6 +10,11 @@ A chess game project for oop course 2023.
 - Add check board legitimacy feature for Go game
 - Reduce reversi boardScan complexity to O(n)
 
+## 2.9.2
+- Update Maven dependency on json due to security concerns.
+- Fix asynchronous threading problems when automatically taking random steps.
+- Remove unnecessary game save file.
+
 ## 2.9.1
 - Fix Reversi rules: when only one side runs out of available step, the game continues.
 

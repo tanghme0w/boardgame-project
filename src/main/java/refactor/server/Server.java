@@ -65,12 +65,12 @@ public class Server {
 
         //for testing only
         if (Config.RANDOM_STEP_TEST) {
-            int count = 0;
-            while (isGameActive) {
-                stepAt(new Position((new Random().nextInt(Config.DEFAULT_BOARD_SIZE)) + 1, (new Random().nextInt(Config.DEFAULT_BOARD_SIZE)) + 1));
-                count++;
-                if (count > Config.RANDOM_STEP_NUMBER) break;
-            }
+            new Thread(() -> {
+                for (int i = 0; i < Config.RANDOM_STEP_NUMBER; i++) {
+                    stepAt(new Position((new Random().nextInt(Config.DEFAULT_BOARD_SIZE)) + 1, (new Random().nextInt(Config.DEFAULT_BOARD_SIZE)) + 1));
+                    if (!isGameActive) break;
+                }
+            }).start();
         }
     }
 
