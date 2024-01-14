@@ -57,7 +57,7 @@ public class BoardPanel extends JPanel {
                 int y = j * Config.CELL_SIZE;
                 g.setColor(Color.BLACK);
                 if (i != board.xSize && j != board.ySize) g.drawRect(x, y, Config.CELL_SIZE, Config.CELL_SIZE);
-                StoneColor stoneColor = board.getChessTypeAt(new Position(i, j));
+                StoneColor stoneColor = board.getStoneColorAt(new Position(i, j));
                 if (stoneColor == null) continue;
                 else if (stoneColor == StoneColor.BLACK) {
                     g.setColor(Color.BLACK);

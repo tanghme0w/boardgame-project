@@ -3,11 +3,16 @@ A chess game project for oop course 2023.
 
 ## TODO
 
-- Add Reversi (Othello) ruleset.
 - Add replay feature.
 - Add account feature.
 - Add AI feature.
 - Cancel handler classes, define action listeners within their corresponding components.
+- Add check board legitimacy feature for Go game
+- Reduce reversi boardScan complexity to O(n)
+
+## 2.9.0
+
+- Add Reversi Rules.
 
 ## 2.8.1
 

@@ -23,6 +23,7 @@ public class MainFrame extends JFrame {
     JButton loadGameButton;
     JButton newGoGameButton;
     JButton newGomokuGameButton;
+    JButton newReversiGameButton;
     Integer currentActingPlayerIndex;
     public MainFrame() {
         setTitle("Game");
@@ -130,9 +131,11 @@ public class MainFrame extends JFrame {
         loadGameButton = new JButton("load game"); loadGameButton.addActionListener(new LoadGameButtonListener());
         newGoGameButton = new JButton("new Go game"); newGoGameButton.addActionListener(new NewGoGameButtonListener());
         newGomokuGameButton = new JButton("new Gomoku game"); newGomokuGameButton.addActionListener(new NewGomokuGameButtonListener());
+        newReversiGameButton = new JButton("new Reversi game"); newReversiGameButton.addActionListener(new NewReversiGameButtonListener());
 
         bottomPanelButtons.add(newGoGameButton);
         bottomPanelButtons.add(newGomokuGameButton);
+        bottomPanelButtons.add(newReversiGameButton);
         bottomPanelButtons.add(saveGameButton);
         bottomPanelButtons.add(loadGameButton);
 
