@@ -1,7 +1,7 @@
 package globals;
 
 public class Config {
-    public static boolean RANDOM_STEP_TEST = true;
+    public static boolean RANDOM_STEP_TEST = false;
     public static Integer RANDOM_STEP_NUMBER = 1000;
     public static boolean SHOW_STEP_COUNT = true;
     public static Integer MAX_BOARD_SIZE = 19;

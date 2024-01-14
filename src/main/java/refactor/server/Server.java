@@ -117,7 +117,7 @@ public class Server {
             //update board history
             game.boardHistory.push(new Board(game.board));
             //write log
-            Logger.log(game.currentActingIdentity.player.name + game.currentActingIdentity.stoneColor.string() + " takes step at " + position.x + ", "+ position.y + " (Step #" + (game.boardHistory.size()) + ")");
+            Logger.log(game.currentActingIdentity.player.name + " (" + game.currentActingIdentity.stoneColor.string() + ") " + " takes step at " + position.x + ", "+ position.y + " (Step #" + (game.boardHistory.size()) + ")");
             //reset abstain status
             game.currentActingIdentity.hasAbstained = false;
             //update board status

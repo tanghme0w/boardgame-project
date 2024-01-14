@@ -10,11 +10,15 @@ import java.util.*;
 public class ReversiRules implements Ruleset {
     Board boardCache;
     Map<StoneColor, Integer> pieceCount;
+    Map<StoneColor, Boolean> stepAvailable;
 
     public ReversiRules() {
         pieceCount = new HashMap<>();
         pieceCount.put(StoneColor.BLACK, 0);
         pieceCount.put(StoneColor.WHITE, 0);
+        stepAvailable = new HashMap<>();
+        stepAvailable.put(StoneColor.WHITE, true);
+        stepAvailable.put(StoneColor.BLACK, true);
     }
 
     @Override
@@ -64,32 +68,38 @@ public class ReversiRules implements Ruleset {
             }
         }
 
-        // check if game has ended (no available position for current acting player)
-        StoneColor opponentStoneColor = switch (board.actingStoneColor) {
-            case BLACK -> StoneColor.WHITE;
-            case WHITE -> StoneColor.BLACK;
-        };
-        // for every empty cell on board
-        for (Position p: emptyCells) {
-            // assume current acting side lands here, search in eight directions for occupied pieces
-            int totalOccupyCount = 0;
-            for (Direction d: Direction.values()) {
-                Position tp = p.nextPosition(d);
-                int localOccupyCount = 0;
-                while (board.getStoneColorAt(tp) == opponentStoneColor) {
-                    localOccupyCount++;
-                    tp = tp.nextPosition(d);
+        // check if game has ended (no available position for all players)
+        for (StoneColor thisColor: StoneColor.values()) {
+            StoneColor opponentStoneColor = switch (thisColor) {
+                case BLACK -> StoneColor.WHITE;
+                case WHITE -> StoneColor.BLACK;
+            };
+            stepAvailable.put(thisColor, false);
+            // for every empty cell on board
+            for (Position p : emptyCells) {
+                // assume current acting side lands here, search in eight directions for occupied pieces
+                int totalOccupyCount = 0;
+                for (Direction d : Direction.values()) {
+                    Position tp = p.nextPosition(d);
+                    int localOccupyCount = 0;
+                    while (board.getStoneColorAt(tp) == opponentStoneColor) {
+                        localOccupyCount++;
+                        tp = tp.nextPosition(d);
+                    }
+                    // can occupy only when reaching ally piece
+                    if (board.getStoneColorAt(tp) == thisColor) {
+                        totalOccupyCount += localOccupyCount;
+                    }
                 }
-                // can occupy only when reaching ally piece
-                if (board.getStoneColorAt(tp) == board.actingStoneColor) {
-                    totalOccupyCount += localOccupyCount;
+                if (totalOccupyCount > 0) {
+                    stepAvailable.put(thisColor, true);
+                    break;
                 }
             }
-            // available space left, game has not ended.
-            if (totalOccupyCount > 0) return new BoardScanResult(true, false, determineWinner());
         }
-
-        // no available spaces left. check winner
+        // there are available steps left for at least one player.
+        if (stepAvailable.get(StoneColor.WHITE) || stepAvailable.get(StoneColor.BLACK)) return new BoardScanResult(true, false, null);
+        // no available spaces left. check winner.
         return new BoardScanResult(true, true, determineWinner());
     }
 
@@ -113,6 +123,18 @@ public class ReversiRules implements Ruleset {
     public StepResult takeStep(Board board, Position position, Stack<Board> boardHistory) {
         // set cache
         boardCache = new Board(board);
+        // find opponent stone color
+        StoneColor opponentStoneColor = switch (boardCache.actingStoneColor) {
+            case BLACK -> StoneColor.WHITE;
+            case WHITE -> StoneColor.BLACK;
+        };
+
+        // check board scan result
+        BoardScanResult boardScanResult = this.scanBoard(boardCache);
+        if (!boardScanResult.gameOver && !this.stepAvailable.get(boardCache.actingStoneColor)) {
+            Logger.log("There are no available step for " + boardCache.actingStoneColor.string() + " player, please abstain or surrender.");
+            return new StepResult(false, false, board, null);
+        }
 
         //  landing on existing piece prohibited
         if (boardCache.pieceExistAt(position)) {
@@ -121,10 +143,6 @@ public class ReversiRules implements Ruleset {
 
         // try to make step
         //  check for occupied pieces on every direction and flip them
-        StoneColor opponentStoneColor = switch (boardCache.actingStoneColor) {
-            case BLACK -> StoneColor.WHITE;
-            case WHITE -> StoneColor.BLACK;
-        };
         List<Position> occupiedPieces = new ArrayList<>();
         for (Direction d: Direction.values()) {
             Position p = position.nextPosition(d);
@@ -148,9 +166,7 @@ public class ReversiRules implements Ruleset {
             for (Position pos: occupiedPieces) boardCache.pieceArray[pos.x][pos.y].stoneColor = boardCache.actingStoneColor;
         }
         // succeed, scan board for available spaces
-        boardCache.actingStoneColor = opponentStoneColor;
-        BoardScanResult boardScanResult = this.scanBoard(boardCache);
-        boardCache.actingStoneColor = board.actingStoneColor;
+        boardScanResult = this.scanBoard(boardCache);
         return new StepResult(true, boardScanResult.gameOver, boardCache, boardScanResult.winner);
     }
 }
