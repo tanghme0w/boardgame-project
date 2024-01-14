@@ -19,11 +19,16 @@ public class GoRules implements Ruleset {
     }
 
     @Override
+    public void init(Board board) {
+        return;
+    }
+
+    @Override
     public BoardScanResult scanBoard(Board board) {
         //check if there are available moves left
         boolean gameEnd = !hasRemainingPosition(board.actingStoneColor);
         StoneColor winningStoneColor = findWinner(board);
-        return new BoardScanResult(gameEnd, winningStoneColor);
+        return new BoardScanResult(true, gameEnd, winningStoneColor);
     }
 
     private StoneColor findWinner(Board board) {
@@ -43,12 +48,12 @@ public class GoRules implements Ruleset {
                 positions.push(currentPosition);
                 //if is black, search for all adjacent black pieces and add black point, do the same for white
                 if (board.pieceExistAt(currentPosition)) {
-                    StoneColor currentStoneColor = board.getChessTypeAt(currentPosition);
+                    StoneColor currentStoneColor = board.getStoneColorAt(currentPosition);
                     while (!positions.isEmpty()) {
                         Position position = positions.pop();
                         for (Position p: position.connectedPositions()) {
                             if (board.outOfBound(p) || visited[p.x][p.y]) continue;
-                            if (currentStoneColor.equals(board.getChessTypeAt(p))) {
+                            if (currentStoneColor.equals(board.getStoneColorAt(p))) {
                                 visited[p.x][p.y] = true;
                                 positions.push(p);
                                 scores.put(currentStoneColor, scores.get(currentStoneColor) + 1);
@@ -65,8 +70,8 @@ public class GoRules implements Ruleset {
                             if (board.outOfBound(p)) continue;
                             if (board.pieceExistAt(p)) {
                                 if (surroundingStoneColor == null) {
-                                    surroundingStoneColor = board.getChessTypeAt(p);
-                                } else if (!surroundingStoneColor.equals(board.getChessTypeAt(p))) {
+                                    surroundingStoneColor = board.getStoneColorAt(p);
+                                } else if (!surroundingStoneColor.equals(board.getStoneColorAt(p))) {
                                     isExclusive = false;
                                     count = 0;
                                 }
@@ -99,7 +104,7 @@ public class GoRules implements Ruleset {
         //remove dead pieces
         for (Position p: position.connectedPositions()) {
             if (boardCache.pieceExistAt(p)
-                    && !boardCache.actingStoneColor.equals(boardCache.getChessTypeAt(p))
+                    && !boardCache.actingStoneColor.equals(boardCache.getStoneColorAt(p))
                     && libertyCount(boardCache, p) == 0) {
                 removePieces(boardCache, p);
             }
@@ -154,7 +159,7 @@ public class GoRules implements Ruleset {
 
         //remove dead pieces
         for (Position p: position.connectedPositions()) {
-            if (tempBoard.pieceExistAt(p) && !tempBoard.getChessTypeAt(p).equals(stoneColor) && libertyCount(tempBoard, p) == 0) {
+            if (tempBoard.pieceExistAt(p) && !tempBoard.getStoneColorAt(p).equals(stoneColor) && libertyCount(tempBoard, p) == 0) {
                 removePieces(tempBoard, p);
             }
         }
@@ -187,7 +192,7 @@ public class GoRules implements Ruleset {
                 //for empty space, add liberty count
                 if (!board.pieceExistAt(p)) liberty++;
                 //for unvisited allies, push to stack
-                else if (board.getChessTypeAt(p).equals(board.getChessTypeAt(position))) traverseStack.push(p);
+                else if (board.getStoneColorAt(p).equals(board.getStoneColorAt(position))) traverseStack.push(p);
             }
         }
         return liberty;
@@ -196,14 +201,14 @@ public class GoRules implements Ruleset {
     public void removePieces(Board board, Position position) {
         if (!board.pieceExistAt(position)) return;
         Stack<Position> traverseStack = new Stack<>();
-        StoneColor stoneColorToBeRemoved = board.getChessTypeAt(position);
+        StoneColor stoneColorToBeRemoved = board.getStoneColorAt(position);
         traverseStack.push(position);
         while(!traverseStack.isEmpty()) {
             Position currentVisitingPosition = traverseStack.pop();
             for(Position p: currentVisitingPosition.connectedPositions()) {
                 if (!board.pieceExistAt(p)) continue;
                 //for unvisited allies, push to stack
-                if (board.getChessTypeAt(p).equals(stoneColorToBeRemoved)) traverseStack.push(p);
+                if (board.getStoneColorAt(p).equals(stoneColorToBeRemoved)) traverseStack.push(p);
             }
             board.removePieceAt(currentVisitingPosition);
         }

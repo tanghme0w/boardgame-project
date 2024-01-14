@@ -72,7 +72,7 @@ public class Board implements Serializable {
         if(outOfBound(position)) return;
         pieceArray[position.x][position.y] = null;
     }
-    public StoneColor getChessTypeAt(Position position) {
+    public StoneColor getStoneColorAt(Position position) {
         if(outOfBound(position) || !pieceExistAt(position)) return null;
         return pieceArray[position.x][position.y].stoneColor;
     }

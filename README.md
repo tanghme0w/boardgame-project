@@ -1,14 +1,28 @@
 # boardgame-project
 A chess game project for oop course 2023.
 
-# TODO
+## TODO
+
+- Add Reversi (Othello) ruleset.
+- Add replay feature.
+- Add account feature.
+- Add AI feature.
 - Cancel handler classes, define action listeners within their corresponding components.
 
-# 2.8.0
+## 2.8.1
+
+- Add boardLegit domain to BoardScanResult.
+- Add Direction enum type. Add nextPosition() method to Position class.
+- Add init() method to Ruleset interface.
+  - Game will call Ruleset.init() in its constructor.
+- Unify naming: Board.getChessType -> getStoneColor.
+- Will judge if BoardHistory before poping for withdraw.
+
+## 2.8.0
 - Add both side withdraw & surrender feature.
 - Fix bugs about gomoku boardScan function.
 
-# 2.7.1
+## 2.7.1
 - Add string() method to ChessType, more convenient for display.
 
 ## 2.7.0

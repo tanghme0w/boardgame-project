@@ -17,6 +17,7 @@ public class Game implements Serializable {
     public Game(Integer boardSizeX, Integer boardSizeY, Ruleset ruleset) {
         //initialize game board
         board = new Board(boardSizeX, boardSizeY);
+        ruleset.init(board);
         //initialize identities and identity map
         identities = new ArrayList<>();
         identities.add(new Identity(StoneColor.BLACK));

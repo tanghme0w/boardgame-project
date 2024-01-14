@@ -30,6 +30,7 @@ public class Server {
         switch (rule.strip().toLowerCase()) {
             case "go": game = new Game(boardSize[0], boardSize[1], new GoRules()); break;
             case "gomoku": game = new Game(boardSize[0], boardSize[1], new GomokuRules()); break;
+            case "reversi": game = new Game(boardSize[0], boardSize[1], new ReversiRules()); break;
         }
 
         //temporary: clear the room when each game starts. Will be removed after account system is implemented.
@@ -192,6 +193,11 @@ public class Server {
         }
         actionIdentity.withdrawCount++;
         //pop history until the popped out move belongs to the current player.
+        if (game.boardHistory.isEmpty()) {
+            Logger.log("cannot withdraw step: history is empty.");
+            render();
+            return;
+        }
         Board boardHistoryEntry = game.boardHistory.pop();
         while (boardHistoryEntry.actingStoneColor != actionIdentity.stoneColor) {
             boardHistoryEntry = game.boardHistory.pop();
@@ -199,7 +205,7 @@ public class Server {
         game.board = boardHistoryEntry;
         game.currentActingIdentity = getCurrentActingIdentityWithChessType(game.board.actingStoneColor);
 
-        Logger.log(actionIdentity.player.name + " (" + actionIdentity.stoneColor.string() + ") " + " has redrawn step #" + (game.boardHistory.size() + 1));
+        Logger.log(actionIdentity.player.name + " (" + actionIdentity.stoneColor.string() + ") " + " has withdrawn step #" + (game.boardHistory.size() + 1));
 
         //reactivate the game if game has ended.
         isGameActive = true;

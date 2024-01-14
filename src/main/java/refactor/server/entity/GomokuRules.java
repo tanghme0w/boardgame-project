@@ -14,15 +14,20 @@ public class GomokuRules implements Ruleset {
     }
 
     @Override
+    public void init(Board board) {
+        return;
+    }
+
+    @Override
     public BoardScanResult scanBoard(Board board) {
         boardCache = board;
         //scan the whole board for winning pieces
         for (int i = 1; i <= board.xSize; i++) {
             for (int j = 1; j <= board.ySize; j++) {
-                if(isFiveConnected(new Position(i, j))) return new BoardScanResult(true, board.getChessTypeAt(new Position(i, j)));
+                if(isFiveConnected(new Position(i, j))) return new BoardScanResult(true, true, board.getStoneColorAt(new Position(i, j)));
             }
         }
-        return new BoardScanResult(false, null);
+        return new BoardScanResult(true, true, null);
     }
 
     @Override
@@ -55,7 +60,7 @@ public class GomokuRules implements Ruleset {
     private int countTowards(Position p, Direction d) {
         Position tempPosition = new Position(p.x, p.y);
         int count = 0;
-        while (boardCache.getChessTypeAt(p).equals(boardCache.getChessTypeAt(tempPosition))) {
+        while (boardCache.getStoneColorAt(p).equals(boardCache.getStoneColorAt(tempPosition))) {
             count++;
             tempPosition = switch (d) {
                 case UP -> tempPosition.up();
