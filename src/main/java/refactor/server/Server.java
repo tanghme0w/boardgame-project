@@ -86,7 +86,7 @@ public class Server {
             render();
             Client.popUpMessage(new PromptVO("It's a tie!"));
         } else {
-            String winnerName = winner.player.name;
+            String winnerName = winner.player.playerName;
             String winningSide = switch (winner.stoneColor) {
                 case BLACK -> "black";
                 case WHITE -> "white";
@@ -101,7 +101,7 @@ public class Server {
 
     public static void playerLogin(Player player) {
         players.add(player);
-        Logger.log(player.name + " has joined the game.");
+        Logger.log(player.playerName + " has joined the game.");
     }
 
     public static void stepAt(Position position) {
@@ -117,7 +117,7 @@ public class Server {
             //update board history
             game.boardHistory.push(new Board(game.board));
             //write log
-            Logger.log(game.currentActingIdentity.player.name + " (" + game.currentActingIdentity.stoneColor.string() + ") " + " takes step at " + position.x + ", "+ position.y + " (Step #" + (game.boardHistory.size()) + ")");
+            Logger.log(game.currentActingIdentity.player.playerName + " (" + game.currentActingIdentity.stoneColor.string() + ") " + " takes step at " + position.x + ", "+ position.y + " (Step #" + (game.boardHistory.size()) + ")");
             //reset abstain status
             game.currentActingIdentity.hasAbstained = false;
             //update board status
@@ -165,7 +165,7 @@ public class Server {
         }
 
         //if the game does not end, change the current acting player
-        Logger.log(game.currentActingIdentity.player.name + " abstained, the turn goes to the next player");
+        Logger.log(game.currentActingIdentity.player.playerName + " abstained, the turn goes to the next player");
         game.switchTurn();
 
         //render
@@ -187,7 +187,7 @@ public class Server {
         //accumulate withdraw count
         Identity actionIdentity = game.playerIdentityMap.get(players.get(playerIndex));
         if (actionIdentity.withdrawCount.equals(Config.MAX_WITHDRAW_TIMES)) {
-            Logger.log(actionIdentity.player.name + " cannot withdraw step: maximum withdraw limit reached.");
+            Logger.log(actionIdentity.player.playerName + " cannot withdraw step: maximum withdraw limit reached.");
             render();
             return;
         }
@@ -205,7 +205,7 @@ public class Server {
         game.board = boardHistoryEntry;
         game.currentActingIdentity = getCurrentActingIdentityWithChessType(game.board.actingStoneColor);
 
-        Logger.log(actionIdentity.player.name + " (" + actionIdentity.stoneColor.string() + ") " + " has withdrawn step #" + (game.boardHistory.size() + 1));
+        Logger.log(actionIdentity.player.playerName + " (" + actionIdentity.stoneColor.string() + ") " + " has withdrawn step #" + (game.boardHistory.size() + 1));
 
         //reactivate the game if game has ended.
         isGameActive = true;
