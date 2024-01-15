@@ -1,6 +1,7 @@
 package globals;
 
 public class Config {
+    public static boolean REPLAY_WHEN_LOAD = false;
     public static boolean RANDOM_STEP_TEST = true;
     public static Integer RANDOM_STEP_NUMBER = 1000;
     public static boolean SHOW_STEP_COUNT = true;

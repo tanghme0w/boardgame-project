@@ -225,19 +225,6 @@ public class Server {
         render();
     }
 
-    public static void saveBoard(String path) {
-        try (FileOutputStream fileOut = new FileOutputStream(path)) {
-            ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeObject(game.board);
-        } catch (Exception e) {
-            System.out.printf(e.getMessage());
-        }
-    }
-
-    public static void loadBoard(String path) {
-        //TODO
-    }
-
     public static void saveGame(String path) {
         try (FileOutputStream fileOut = new FileOutputStream(path)) {
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
@@ -267,14 +254,46 @@ public class Server {
             game.playerIdentityMap.put(id.player, id);
         }
 
-        //activate game status
-        isGameActive = true;
+        //replay
+        Thread replayThread = null;
+        if (Config.REPLAY_WHEN_LOAD) {
+            replayThread = new Thread(()->{
+                for (Board historyBoard: game.boardHistory) {
+                    Client.render(
+                            new RenderVO(
+                                    players,
+                                    game.identities,
+                                    game.currentActingIdentity,
+                                    historyBoard,
+                                    Logger.getLog(Config.MAX_LOG_ENTRIES)
+                            )
+                    );
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                //activate game status
+                isGameActive = true;
 
-        //if game is already over, pop up message
-        BoardScanResult scanResult = game.ruleset.scanBoard(game.board);
-        if(scanResult.gameOver) endGame(scanResult.winner);
+                //if game is already over, pop up message
+                BoardScanResult scanResult = game.ruleset.scanBoard(game.board);
+                if(scanResult.gameOver) endGame(scanResult.winner);
 
-        render();
+                render();
+            });
+            replayThread.start();
+        } else {
+            //activate game status
+            isGameActive = true;
+
+            //if game is already over, pop up message
+            BoardScanResult scanResult = game.ruleset.scanBoard(game.board);
+            if(scanResult.gameOver) endGame(scanResult.winner);
+
+            render();
+        }
     }
 
     //render player info, game board, and logs.
