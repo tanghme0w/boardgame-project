@@ -48,7 +48,7 @@ public class Client {
             playerText.add("N/A");
             return playerText;
         }
-        playerText.add("Name: " + id.player.name);
+        playerText.add("Name: " + id.player.playerName);
         playerText.add("Side: " + switch (id.stoneColor) {
             case BLACK -> "black";
             case WHITE -> "white";
