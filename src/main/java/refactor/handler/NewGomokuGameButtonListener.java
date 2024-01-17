@@ -11,6 +11,6 @@ public class NewGomokuGameButtonListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         //pop input window
         //new game
-        Server.newGame("gomoku", new int[]{Config.DEFAULT_BOARD_SIZE, Config.DEFAULT_BOARD_SIZE});
+        Server.newGame("gomoku", new int[]{Config.DEFAULT_GOMOKU_BOARD_SIZE, Config.DEFAULT_GOMOKU_BOARD_SIZE});
     }
 }

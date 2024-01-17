@@ -1,5 +1,5 @@
 package globals;
 
 public enum BoardMode {
-    NORMAL, REMOVE;
+    IN_GAME, REMOVE, WAIT;
 }

@@ -9,6 +9,6 @@ import java.awt.event.ActionListener;
 public class NewReversiGameButtonListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-        Server.newGame("reversi", new int[]{Config.DEFAULT_BOARD_SIZE, Config.DEFAULT_BOARD_SIZE});
+        Server.newGame("reversi", new int[]{Config.DEFAULT_REVERSI_BOARD_SIZE, Config.DEFAULT_REVERSI_BOARD_SIZE});
     }
 }

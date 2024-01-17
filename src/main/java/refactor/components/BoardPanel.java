@@ -39,8 +39,9 @@ public class BoardPanel extends JPanel {
     public BoardPanel(BoardMode mode) {
         setBackground(Color.ORANGE);
         addMouseListener(switch (mode) {
-            case NORMAL -> stepMouseListener;
+            case IN_GAME -> stepMouseListener;
             case REMOVE -> removePieceMouseListener;
+            case WAIT -> null;
         });
     }
 

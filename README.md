@@ -9,6 +9,9 @@ A chess game project for oop course 2023.
 - Add check board legitimacy feature for Go game
 - Reduce reversi boardScan complexity to O(n)
 
+## 2.11.0
+- Add account feature.
+
 ## 2.10.0
 - Add replay feature when loading game. Can be turned on/off with Config.REPLAY_WHEN_LOAD.
 

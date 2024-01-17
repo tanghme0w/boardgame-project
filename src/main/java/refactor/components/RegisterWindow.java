@@ -1,22 +1,22 @@
 package refactor.components;
+
 import refactor.server.Server;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
-public class SaveGameWindow extends BaseWindow {
+public class RegisterWindow extends BaseWindow {
     public static void pop() {
-        createBaseUI("Save Game");
-        JTextField pathField = addTextField("Enter file path: ");
-
-        // Add action listener to button
+        createBaseUI("Register");
+        JTextField nameField = addTextField("User Name: ");
+        JTextField passField = addTextField("Password: ");
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String inputText = pathField.getText();
-                Server.saveGame(inputText);
+                String name = nameField.getText();
+                String pass = HashUtil.Hash(passField.getText());
+                Server.register(name, pass);
                 frame.dispose();
             }
         });

@@ -11,6 +11,6 @@ public class NewGoGameButtonListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         //pop input box
         //start game
-        Server.newGame("go", new int[]{Config.DEFAULT_BOARD_SIZE, Config.DEFAULT_BOARD_SIZE});
+        Server.newGame("go", new int[]{Config.DEFAULT_GO_BOARD_SIZE, Config.DEFAULT_GO_BOARD_SIZE});
     }
 }

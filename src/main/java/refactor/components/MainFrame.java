@@ -2,6 +2,7 @@ package refactor.components;
 
 import globals.BoardMode;
 import globals.Config;
+import refactor.Client;
 import refactor.server.entity.Board;
 import refactor.server.Server;
 import refactor.handler.*;
@@ -24,6 +25,7 @@ public class MainFrame extends JFrame {
     JButton newGoGameButton;
     JButton newGomokuGameButton;
     JButton newReversiGameButton;
+    JButton registerButton;
     Integer currentActingPlayerIndex;
     public MainFrame() {
         setTitle("Game");
@@ -67,7 +69,7 @@ public class MainFrame extends JFrame {
     }
 
     private void initBoardPanel() {
-        boardPanel = new BoardPanel(BoardMode.NORMAL);
+        boardPanel = new BoardPanel(BoardMode.IN_GAME);
         boardPanel.board = new Board(Config.MAX_BOARD_SIZE, Config.MAX_BOARD_SIZE);
     }
 
@@ -100,20 +102,28 @@ public class MainFrame extends JFrame {
 
     public void refreshBottomPanel(BoardMode mode) {
         remove(bottomPanel);
-        if (mode.equals(BoardMode.NORMAL)) {
-            initBottomPanel();
-        } else if (mode.equals(BoardMode.REMOVE)) {
+        if (mode.equals(BoardMode.REMOVE)) {
             remove(bottomPanel);
             JButton confirmRemoveButton = new JButton("Confirm. Let's see who is the winner!");
+            JButton cancelRemoveButton = new JButton("Cancel");
             confirmRemoveButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     Server.confirmRemoveDeadPieces(boardPanel.board);
                 }
             });
+            cancelRemoveButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Server.cancelRemoveDeadPieces();
+                }
+            });
             List<JButton> buttons = new ArrayList<>();
             buttons.add(confirmRemoveButton);
+            buttons.add(cancelRemoveButton);
             bottomPanel = new BottomPanel(buttons);
+        } else {
+            initBottomPanel();
         }
         add(bottomPanel, BorderLayout.SOUTH);
         this.revalidate();
@@ -132,12 +142,19 @@ public class MainFrame extends JFrame {
         newGoGameButton = new JButton("new Go game"); newGoGameButton.addActionListener(new NewGoGameButtonListener());
         newGomokuGameButton = new JButton("new Gomoku game"); newGomokuGameButton.addActionListener(new NewGomokuGameButtonListener());
         newReversiGameButton = new JButton("new Reversi game"); newReversiGameButton.addActionListener(new NewReversiGameButtonListener());
+        registerButton = new JButton("new player sign up"); registerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                RegisterWindow.pop();
+            }
+        });
 
         bottomPanelButtons.add(newGoGameButton);
         bottomPanelButtons.add(newGomokuGameButton);
         bottomPanelButtons.add(newReversiGameButton);
         bottomPanelButtons.add(saveGameButton);
         bottomPanelButtons.add(loadGameButton);
+        bottomPanelButtons.add(registerButton);
 
         bottomPanel = new BottomPanel(bottomPanelButtons);
     }

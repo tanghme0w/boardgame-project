@@ -15,7 +15,7 @@ public class GoRules implements Ruleset {
 
     @Override
     public String getRuleName() {
-        return "Go";
+        return "go";
     }
 
     @Override

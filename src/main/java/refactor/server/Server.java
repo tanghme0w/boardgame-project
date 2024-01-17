@@ -11,20 +11,21 @@ import refactor.vo.PromptVO;
 import refactor.vo.RenderVO;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Server {
     static Game game = null;
 
-    static List<Player> players = new ArrayList<>();
+    static List<Player> players = new ArrayList<>(Arrays.asList(new Player[2]));
 
     static boolean isGameActive = false;
+
+    static Account account = new Account(Config.ACCOUNT_DATA_PATH);
 
     public static void newGame(String rule, int[] boardSize) {
         //set state flag
         isGameActive = true;
+        Client.boardMode = BoardMode.IN_GAME;
 
         //instantiate new game
         switch (rule.strip().toLowerCase()) {
@@ -33,22 +34,30 @@ public class Server {
             case "reversi": game = new Game(boardSize[0], boardSize[1], new ReversiRules()); break;
         }
 
-        //temporary: clear the room when each game starts. Will be removed after account system is implemented.
-        players = new ArrayList<>();
-
-        //generate players if room is not full
-        if (players.size() < 2) {
-            //generate a guest player for every vacant identity in current game.
-            for (Identity identity: game.identities) {
-                if (identity.player == null) {
-                    Player newGuestPlayer = new Player("Guest_" + new Random().nextInt(1000));
-                    playerLogin(newGuestPlayer);
-                    identity.player = newGuestPlayer;
-                    game.playerIdentityMap.put(newGuestPlayer, identity);
-                }
-            }
+        //generate random guest players to fill vacancy
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i) == null) generateGuestPlayer(i);
         }
 
+        //increase the join game counter for each player
+        for (Player player: players) {
+            player.joinRecord.put("total", player.joinRecord.getOrDefault("total", 0) + 1);
+            player.joinRecord.put(rule.strip().toLowerCase(), player.joinRecord.getOrDefault(rule.strip().toLowerCase(), 0) + 1);
+            account.flush();
+        }
+
+        //assign a player for every vacant identity in current game.
+        List<Integer> idx = new ArrayList<>();
+        for (int i = 0; i < game.identities.size(); i++) {
+            idx.add(i);
+        }
+        Collections.shuffle(idx);
+        for (int i = 0; i < game.identities.size(); i++) {
+            Identity id = game.identities.get(i);
+            Player p = players.get(i);
+            id.player = p;
+            game.playerIdentityMap.put(p, id);
+        }
 
         //set player with chessType BLACK as the initial player
         for (Identity id: game.identities) {
@@ -67,7 +76,7 @@ public class Server {
         if (Config.RANDOM_STEP_TEST) {
             new Thread(() -> {
                 for (int i = 0; i < Config.RANDOM_STEP_NUMBER; i++) {
-                    stepAt(new Position((new Random().nextInt(Config.DEFAULT_BOARD_SIZE)) + 1, (new Random().nextInt(Config.DEFAULT_BOARD_SIZE)) + 1));
+                    stepAt(new Position((new Random().nextInt(Config.DEFAULT_GO_BOARD_SIZE)) + 1, (new Random().nextInt(Config.DEFAULT_GO_BOARD_SIZE)) + 1));
                     if (!isGameActive) break;
                 }
             }).start();
@@ -92,16 +101,59 @@ public class Server {
                 case WHITE -> "white";
             };
             String winningIdentity = winnerName + " (" + winningSide + ") ";
+            //add winning count
+            winner.player.winRecord.put("total", winner.player.winRecord.getOrDefault("total", 0) + 1);
+            winner.player.winRecord.put(game.ruleset.getRuleName(), winner.player.winRecord.getOrDefault(game.ruleset.getRuleName(), 0) + 1);
+            account.flush();
             Logger.log("Game Over: " + winningIdentity + " wins");
             render();
             Client.popUpMessage(new PromptVO(winningIdentity + "wins!"));
         }
         isGameActive = false;
+        Client.boardMode = BoardMode.WAIT;
+        render();
     }
 
-    public static void playerLogin(Player player) {
-        players.add(player);
-        Logger.log(player.playerName + " has joined the game.");
+    public static void login(String name, String passHash, Integer position) {
+        for (Player player: players) {
+            if (player != null &&  Objects.equals(player.playerName, name)) {
+                Client.popUpMessage(new PromptVO("Login fail: " + name + " has already logged in!"));
+                render();
+                return;
+            }
+        }
+        Player player = account.loginWithCredentials(name, passHash);
+        if (player != null) {
+            players.set(position, player);
+            Client.popUpMessage(new PromptVO("Login success. Welcome, " + name + "!"));
+            render();
+            return;
+        }
+        Client.popUpMessage(new PromptVO("Login fail: invalid username or password."));
+        render();
+    }
+
+    public static void logout(Integer position) {
+        Player player = players.get(position);
+        players.set(position, null);
+        Client.popUpMessage(new PromptVO("Logout success. Goodbye, " + player.playerName + "!"));
+        render();
+    }
+
+    public static void register(String name, String passHash) {
+        if (account.accountExists(name)) {
+            Client.popUpMessage(new PromptVO("Register failed! Player named " + name + " already exists. Please log in."));
+        } else {
+            account.addNewPlayer(new Player(name, passHash));
+            account.flush();
+            Client.popUpMessage(new PromptVO("Register success! Please log in to join the game."));
+        }
+    }
+
+    public static void generateGuestPlayer(Integer playerIdx) {
+        Player newGuestPlayer = new Player("Guest_" + new Random().nextInt(1000));
+        players.set(playerIdx, newGuestPlayer);
+        Logger.log(newGuestPlayer.playerName + " has joined the game.");
     }
 
     public static void stepAt(Position position) {
@@ -153,10 +205,11 @@ public class Server {
             Logger.log("All players have abstained, the game ends.");
             // find the winner
             // if this is a go game, prompt users to remove dead pieces
-            if (game.ruleset.getRuleName().equals("Go")) {
+            if (game.ruleset.getRuleName().equalsIgnoreCase("go")) {
                 Client.popUpMessage(new PromptVO("Game has ended, please click on dead pieces to remove them.\n" +
                         "Click on the confirm button on the bottom left when you are done."));
                 render();
+                game.boardHistory.push(new Board(game.board));
                 Client.removeDeadPieces(new RenderVO(players, game.identities, game.currentActingIdentity, game.board, Logger.getLog(Config.MAX_LOG_ENTRIES)));
                 return;
             }
@@ -209,6 +262,7 @@ public class Server {
 
         //reactivate the game if game has ended.
         isGameActive = true;
+        Client.boardMode = BoardMode.IN_GAME;
         render();
     }
 
@@ -218,9 +272,14 @@ public class Server {
         render();
     }
 
+    public static void cancelRemoveDeadPieces() {
+        game.board = game.boardHistory.pop();
+        Client.boardMode = BoardMode.IN_GAME;
+        render();
+    }
+
     public static void confirmRemoveDeadPieces(Board board) {
         Logger.log("Action: confirm remove dead pieces");
-        Client.boardMode = BoardMode.NORMAL;
         endGame(game.ruleset.scanBoard(game.board).winner);
         render();
     }
@@ -245,12 +304,12 @@ public class Server {
         Logger.log("loading new" + game.ruleset.getRuleName() + " game from: " + path);
         Logger.log("All existing players will be cleared");
 
-        //clear current existing players
+        //load the players
         players = new ArrayList<>();
 
         //recover players & identity map
         for (Identity id: game.identities) {
-            playerLogin(id.player);
+            players.add(id.player);
             game.playerIdentityMap.put(id.player, id);
         }
 
@@ -298,7 +357,11 @@ public class Server {
 
     //render player info, game board, and logs.
     static void render() {
-        Client.render(new RenderVO(players, game.identities, game.currentActingIdentity, game.board, Logger.getLog(Config.MAX_LOG_ENTRIES)));
+        if (game == null) {
+            Client.render(new RenderVO(players, null, null, null, Logger.getLog(Config.MAX_LOG_ENTRIES)));
+        } else {
+            Client.render(new RenderVO(players, game.identities, game.currentActingIdentity, game.board, Logger.getLog(Config.MAX_LOG_ENTRIES)));
+        }
     }
 
     private static Identity getCurrentActingIdentityWithChessType(StoneColor stoneColor) {

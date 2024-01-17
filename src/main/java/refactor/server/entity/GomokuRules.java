@@ -10,7 +10,7 @@ public class GomokuRules implements Ruleset {
 
     @Override
     public String getRuleName() {
-        return "Gomoku";
+        return "gomoku";
     }
 
     @Override

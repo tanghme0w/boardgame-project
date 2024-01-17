@@ -2,19 +2,17 @@ package refactor.components;
 
 import refactor.server.Server;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class SurrenderConfirmWindow extends BaseWindow {
-    public static void pop(Integer playerIndex) {
-        createBaseUI("Surrender");
-        addLabel("Are you sure you would like to surrender?");
-        // Add action listener to button
+public class LogoutConfirmWindow extends BaseWindow {
+    public static void pop(Integer playerIdx) {
+        createBaseUI("Logout");
+        addLabel("Player" + playerIdx + ", are you sure you would like to log out?");
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Server.surrender(playerIndex);
+                Server.logout(playerIdx);
                 frame.dispose();
             }
         });
