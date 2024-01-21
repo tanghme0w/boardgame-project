@@ -10,7 +10,7 @@ public class RegisterWindow extends BaseWindow {
     public static void pop() {
         createBaseUI("Register");
         JTextField nameField = addTextField("User Name: ");
-        JTextField passField = addTextField("Password: ");
+        JPasswordField passField = addPasswordField("Password: ");
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

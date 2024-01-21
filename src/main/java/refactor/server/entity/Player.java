@@ -5,11 +5,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Player implements Serializable {
+    public boolean isAI;
+    public Integer AILevel;
     public String playerName;
     public String passHash;
     public Map<String, Integer> joinRecord;
     public Map<String, Integer> winRecord;
     Player(Player player) {
+        this.isAI = player.isAI;
+        this.AILevel = 0;
         this.playerName = player.playerName;
         this.passHash = player.passHash;
         //perform deep copy for record
@@ -19,12 +23,16 @@ public class Player implements Serializable {
         winRecord.putAll(player.winRecord);
     }
     public Player(String playerName) {
+        this.isAI = false;
+        this.AILevel = 0;
         this.playerName = playerName;
         this.passHash = "";
         this.joinRecord = new HashMap<>();
         this.winRecord = new HashMap<>();
     }
     public Player(String playerName, String passHash) {
+        this.isAI = false;
+        this.AILevel = 0;
         this.playerName = playerName;
         this.passHash = passHash;
         this.joinRecord = new HashMap<>();

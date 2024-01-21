@@ -46,6 +46,16 @@ public abstract class BaseWindow {
         return jTextField;
     }
 
+    protected static JPasswordField addPasswordField(String label) {
+        JLabel jLabel = new JLabel(label);
+        JPasswordField jPasswordField = new JPasswordField(20);
+        formPanel.add(jLabel);
+        formPanel.add(jPasswordField);
+        fieldCount++;
+        frame.setSize(300, 75 + fieldCount * 50);
+        return jPasswordField;
+    }
+
     protected static void addLabel(String label) {
         JLabel jLabel = new JLabel(label);
         formPanel.add(jLabel);

@@ -4,6 +4,7 @@ import refactor.server.entity.Board;
 import refactor.server.entity.Identity;
 import refactor.server.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RenderVO {
@@ -18,5 +19,12 @@ public class RenderVO {
         this.currentActingIdentity = currentActingIdentity;
         this.board = board;
         this.log = log;
+    }
+    public RenderVO() {
+        this.players = new ArrayList<>();
+        this.identities = new ArrayList<>();
+        this.currentActingIdentity = null;
+        this.board = null;
+        this.log = new ArrayList<>();
     }
 }

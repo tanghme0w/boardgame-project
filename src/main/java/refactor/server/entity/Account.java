@@ -16,6 +16,8 @@ public class Account {
             this.accountMap = (Map<String, Player>) in.readObject();
         } catch (FileNotFoundException e) {
             this.accountMap = new HashMap<>();
+        } catch (InvalidClassException e) {
+            System.out.println("Incompatible class exception, probably due to changes in player class. Please delete the account file and try again.");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

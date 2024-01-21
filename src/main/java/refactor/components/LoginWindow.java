@@ -10,7 +10,7 @@ public class LoginWindow extends BaseWindow {
     public static void pop(Integer playerIdx) {
         createBaseUI("Player" + playerIdx + " login");
         JTextField nameField = addTextField("User Name: ");
-        JTextField passField = addTextField("Password: ");
+        JPasswordField passField = addPasswordField("Password: ");
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

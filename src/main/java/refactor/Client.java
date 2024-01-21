@@ -14,6 +14,7 @@ public class Client {
     public static MainFrame mainFrame;
     public static BoardMode boardMode = BoardMode.WAIT;
     public static Map<Integer, Boolean> playerLoginStatus = new HashMap<>(Map.of(0, false, 1, false));
+    public static Map<Integer, Boolean> playerISAI = new HashMap<>(Map.of(0, false, 1, false));
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             mainFrame = new MainFrame();
@@ -25,9 +26,12 @@ public class Client {
         for(int i = 0; i < renderVO.players.size(); i++) {
             Player player = renderVO.players.get(i);
             if (player == null) playerLoginStatus.put(i, false);
-            else playerLoginStatus.put(i, true);
+            else {
+                playerLoginStatus.put(i, true);
+                playerISAI.put(i, player.isAI);
+            }
             List<String> playerInfo = formulatePlayerInfo(player);
-            List<String> identityInfo = new ArrayList<>();
+            List<String> identityInfo;
             if (boardMode == BoardMode.IN_GAME) {
                 identityInfo = formulateIdentityInfo(renderVO.identities.get(i), renderVO.currentActingIdentity);
                 playerInfo.addAll(identityInfo);

@@ -23,9 +23,6 @@ public class Server {
     static Account account = new Account(Config.ACCOUNT_DATA_PATH);
 
     public static void newGame(String rule, int[] boardSize) {
-        //set state flag
-        isGameActive = true;
-        Client.boardMode = BoardMode.IN_GAME;
 
         //instantiate new game
         switch (rule.strip().toLowerCase()) {
@@ -34,9 +31,14 @@ public class Server {
             case "reversi": game = new Game(boardSize[0], boardSize[1], new ReversiRules()); break;
         }
 
-        //generate random guest players to fill vacancy
+        //generate random AI players to fill vacancy
         for (int i = 0; i < players.size(); i++) {
-            if (players.get(i) == null) generateGuestPlayer(i);
+            if (players.get(i) == null) {
+                generateGuestPlayer(i);
+                players.get(i).isAI = true;
+                players.get(i).AILevel = Config.AI_LEVEL;
+                players.get(i).playerName = players.get(i).playerName + " (AI) ";
+            }
         }
 
         //increase the join game counter for each player
@@ -59,14 +61,15 @@ public class Server {
             game.playerIdentityMap.put(p, id);
         }
 
-        //set player with chessType BLACK as the initial player
-        for (Identity id: game.identities) {
-            if (id.stoneColor.equals(StoneColor.BLACK)) {
-                game.currentActingIdentity = id;
-            }
-        }
-        //and set next chess type of the board as well
-        game.board.actingStoneColor = StoneColor.BLACK;
+        //set state flag
+        isGameActive = true;
+        Client.boardMode = BoardMode.IN_GAME;
+
+        //initiate game
+        game.switchTurn();
+
+        //do AI step if current acting player is AI
+        AIStep(game.currentActingIdentity.player.AILevel);
 
         //log & render
         Logger.log("New " + rule + " game with board size (" + boardSize[0] + ", " + boardSize[1] + ")");
@@ -81,6 +84,36 @@ public class Server {
                 }
             }).start();
         }
+    }
+
+    private static void AIStep(Integer level) {
+        if (level <= 0) return;
+        new Thread(() -> {
+            try {
+                Thread.sleep(500);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            //retrieve available steps
+            List<Action> actions = game.ruleset.evaluateActions(game.board);
+            //if no available steps, abstain
+            if (actions.isEmpty()) surrender(players.indexOf(game.currentActingIdentity.player));
+            if (Config.AI_LEVEL == 1) {
+                //take random steps
+                Random random = new Random();
+                int actionIdx = random.nextInt(actions.size());
+                stepAt(actions.get(actionIdx).position);
+            } else if (Config.AI_LEVEL == 2) {
+                //choose the highest score action
+                actions.sort(new Comparator<Action>() {
+                    @Override
+                    public int compare(Action o1, Action o2) {
+                        return o2.score - o1.score;
+                    }
+                });
+                stepAt(actions.get(0).position);
+            }
+        }).start();
     }
 
     public static void endGame(StoneColor winnerStoneColor) {
@@ -154,6 +187,7 @@ public class Server {
         Player newGuestPlayer = new Player("Guest_" + new Random().nextInt(1000));
         players.set(playerIdx, newGuestPlayer);
         Logger.log(newGuestPlayer.playerName + " has joined the game.");
+        render();
     }
 
     public static void stepAt(Position position) {
@@ -185,6 +219,9 @@ public class Server {
 
         //render
         render();
+
+        //if next player is AI, do AI step
+        if (isGameActive) AIStep(game.currentActingIdentity.player.AILevel);
     }
 
     public static void abstain() {
@@ -357,6 +394,7 @@ public class Server {
 
     //render player info, game board, and logs.
     static void render() {
+        RenderVO renderVO = new RenderVO();
         if (game == null) {
             Client.render(new RenderVO(players, null, null, null, Logger.getLog(Config.MAX_LOG_ENTRIES)));
         } else {

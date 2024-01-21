@@ -20,8 +20,9 @@ public class Game implements Serializable {
         ruleset.init(board);
         //initialize identities and identity map
         identities = new ArrayList<>();
-        identities.add(new Identity(StoneColor.BLACK));
-        identities.add(new Identity(StoneColor.WHITE));
+        for (StoneColor stoneColor: StoneColor.values()) {
+            identities.add(new Identity(stoneColor));
+        }
         this.playerIdentityMap = new HashMap<>();
         this.boardHistory = new Stack<>();
         this.ruleset = ruleset;
@@ -29,8 +30,10 @@ public class Game implements Serializable {
 
     //modify game status
     public void switchTurn() {
-        int currentIdentityIndex = identities.indexOf(currentActingIdentity);
-        int nextIdentityIndex = (currentIdentityIndex + 1) % identities.size();
+        int nextIdentityIndex;
+        if (currentActingIdentity == null) {
+            nextIdentityIndex = 0;
+        } else nextIdentityIndex = (identities.indexOf(currentActingIdentity) + 1) % identities.size();
         currentActingIdentity = identities.get(nextIdentityIndex);
         board.actingStoneColor = currentActingIdentity.stoneColor;
     }

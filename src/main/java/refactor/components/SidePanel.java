@@ -5,6 +5,7 @@ import globals.Config;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
 
 public class SidePanel extends JPanel {
     SidePanel(List<JTextArea> playerInfoAreas, JTextArea logInfoArea, Integer actingPlayerIndex) {

@@ -109,6 +109,11 @@ public class ReversiRules implements Ruleset {
     }
 
     @Override
+    public List<Action> evaluateActions(Board board) {
+        return null;
+    }
+
+    @Override
     public void init(Board board) {
         Position centerPos = new Position(board.xSize / 2, board.ySize / 2);
         board.addPieceAt(centerPos, StoneColor.WHITE, 0);

@@ -2,7 +2,6 @@ package refactor.components;
 
 import globals.BoardMode;
 import globals.Config;
-import refactor.Client;
 import refactor.server.entity.Board;
 import refactor.server.Server;
 import refactor.handler.*;
@@ -12,7 +11,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainFrame extends JFrame {
     List<JTextArea> playerInfoArea;
@@ -27,6 +28,7 @@ public class MainFrame extends JFrame {
     JButton newReversiGameButton;
     JButton registerButton;
     Integer currentActingPlayerIndex;
+    Map<Integer, Boolean> isAI;
     public MainFrame() {
         setTitle("Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -34,6 +36,7 @@ public class MainFrame extends JFrame {
         setSize(((Config.MAX_BOARD_SIZE + 1) * Config.CELL_SIZE) + Config.SIDE_PANEL_WIDTH,
                 (Config.MAX_BOARD_SIZE + 3) * Config.CELL_SIZE);
         currentActingPlayerIndex = -1;
+        isAI = new HashMap<>(Map.of(0, false, 1, false));
         setLocationRelativeTo(null); //center the window
 
         initBoardPanel();
@@ -91,7 +94,8 @@ public class MainFrame extends JFrame {
 
     public void refreshSidePanel() {
         remove(sidePanel);
-        sidePanel = new SidePanel(playerInfoArea,
+        sidePanel = new SidePanel(
+                playerInfoArea,
                 logArea,
                 currentActingPlayerIndex
         );

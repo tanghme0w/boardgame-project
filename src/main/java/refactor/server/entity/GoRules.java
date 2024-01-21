@@ -19,6 +19,11 @@ public class GoRules implements Ruleset {
     }
 
     @Override
+    public List<Action> evaluateActions(Board board) {
+        return null;
+    }
+
+    @Override
     public void init(Board board) {
         return;
     }

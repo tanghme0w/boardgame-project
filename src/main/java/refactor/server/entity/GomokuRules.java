@@ -3,6 +3,8 @@ package refactor.server.entity;
 import refactor.server.dto.BoardScanResult;
 import refactor.server.dto.StepResult;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class GomokuRules implements Ruleset {
@@ -11,6 +13,22 @@ public class GomokuRules implements Ruleset {
     @Override
     public String getRuleName() {
         return "gomoku";
+    }
+
+    @Override
+    public List<Action> evaluateActions(Board board) {
+        List<Action> actions = new ArrayList<>();
+        boardCache = new Board(board);
+        //any empty cell would be available
+        for (int i = 1; i <= board.xSize; i++) {
+            for (int j = 1; j <= board.ySize; j++) {
+                Position currentPosition = new Position(i, j);
+                if (!boardCache.pieceExistAt(currentPosition)) {
+                    actions.add(new Action(currentPosition, 0));
+                }
+            }
+        }
+        return actions;
     }
 
     @Override

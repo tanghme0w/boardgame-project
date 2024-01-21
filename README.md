@@ -3,7 +3,6 @@ A chess game project for oop course 2023.
 
 ## TODO
 
-- Add account feature.
 - Add AI feature.
 - Cancel handler classes, define action listeners within their corresponding components.
 - Add check board legitimacy feature for Go game
