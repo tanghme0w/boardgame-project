@@ -13,6 +13,7 @@ import java.util.*;
 public class Client {
     public static MainFrame mainFrame;
     public static BoardMode boardMode = BoardMode.WAIT;
+    public static boolean isAIActing = false;
     public static Map<Integer, Boolean> playerLoginStatus = new HashMap<>(Map.of(0, false, 1, false));
     public static Map<Integer, Boolean> playerISAI = new HashMap<>(Map.of(0, false, 1, false));
     public static void main(String[] args) {

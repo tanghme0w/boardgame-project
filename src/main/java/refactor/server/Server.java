@@ -87,7 +87,11 @@ public class Server {
     }
 
     private static void AIStep(Integer level) {
-        if (level <= 0) return;
+        if (level <= 0) {
+            Client.isAIActing = false;
+            return;
+        }
+        Client.isAIActing = true;
         new Thread(() -> {
             try {
                 Thread.sleep(500);
@@ -191,7 +195,7 @@ public class Server {
     }
 
     public static void stepAt(Position position) {
-        //do nothing if the game hasn't started or has already ended.
+        //do nothing if the game hasn't started or has already ended or AI is playing.
         if (!isGameActive) return;
 
         //validate position coordinates
