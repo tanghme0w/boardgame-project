@@ -4,14 +4,11 @@ import globals.StoneColor;
 import refactor.server.dto.BoardScanResult;
 import refactor.server.dto.StepResult;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class GoRules implements Ruleset {
     Board boardCache;   //there will be many recursion functions. cache the board to save memory.
-    List<Board> boardHistory;
+    List<Board> boardHistory = new ArrayList<>();
 
     @Override
     public String getRuleName() {
@@ -20,7 +17,29 @@ public class GoRules implements Ruleset {
 
     @Override
     public List<Action> evaluateActions(Board board) {
-        return null;
+        boardCache = new Board(board);
+        List<Action> remainingPositions = new ArrayList<>();
+        for (Integer i = 1; i <= boardCache.xSize; i++) {
+            for (Integer j = 1; j <= boardCache.ySize; j++) {
+                //if there are remaining available positions, return step result and continue the game
+                Position p = (new Position(i, j));
+                if (isAvailablePosition(p, boardCache.actingStoneColor)) {
+                    boardCache.addPieceAt(p, boardCache.actingStoneColor, 0);
+                    double score = 0.;
+                    score = 0.5 * (getScore(boardCache) - getScore(board));
+                    if (Objects.equals(board.actingStoneColor, StoneColor.WHITE)) score *= -1;
+                    score += countTotalLiberty(boardCache, boardCache.actingStoneColor) - countTotalLiberty(board, board.actingStoneColor);
+                    StoneColor opponentStoneColor = switch (boardCache.actingStoneColor) {
+                        case BLACK -> StoneColor.WHITE;
+                        case WHITE -> StoneColor.BLACK;
+                    };
+                    score += countTotalLiberty(board, opponentStoneColor) - countTotalLiberty(boardCache, opponentStoneColor);
+                    remainingPositions.add(new Action(p, score));
+                    boardCache = new Board(board);
+                }
+            }
+        }
+        return remainingPositions;
     }
 
     @Override
@@ -28,15 +47,56 @@ public class GoRules implements Ruleset {
         return;
     }
 
+    public double countTotalLiberty(Board board, StoneColor stoneColor) {
+        int liberty = 0;
+        boolean[][] visited = new boolean[board.xSize + 1][board.ySize + 1];
+        for (Integer i = 1; i <= boardCache.xSize; i++) {
+            for (Integer j = 1; j <= boardCache.ySize; j++) {
+                Position position = (new Position(i, j));
+                if (visited[position.x][position.y] || !board.pieceExistAt(position) || !Objects.equals(board.getStoneColorAt(position), stoneColor)) continue;
+                else {
+                    liberty += getLiberty(board, 0, visited, position);
+                }
+            }
+        }
+        return liberty;
+    }
+
+    private int getLiberty(Board board, int liberty, boolean[][] visited, Position position) {
+        visited[position.x][position.y] = true;
+        Stack<Position> traverseStack = new Stack<>();
+        traverseStack.push(position);
+        while(!traverseStack.isEmpty()) {
+            Position currentVisitingPosition = traverseStack.pop();
+            for(Position p: currentVisitingPosition.connectedPositions()) {
+                //if out of bound or is already visited, ignore.
+                if (board.outOfBound(p) || visited[p.x][p.y]) continue;
+                //set visited flag
+                visited[p.x][p.y] = true;
+                //for empty space, add liberty count
+                if (!board.pieceExistAt(p)) liberty++;
+                    //for unvisited allies, push to stack
+                else if (board.getStoneColorAt(p).equals(board.getStoneColorAt(position))) traverseStack.push(p);
+            }
+        }
+        return liberty;
+    }
+
     @Override
     public BoardScanResult scanBoard(Board board) {
         //check if there are available moves left
-        boolean gameEnd = !hasRemainingPosition(board.actingStoneColor);
-        StoneColor winningStoneColor = findWinner(board);
+        boolean gameEnd = true;
+        for (StoneColor stoneColor: StoneColor.values()) {
+            if (!getRemainingPosition(stoneColor).isEmpty()) {
+                gameEnd = false;
+                break;
+            }
+        }
+        StoneColor winningStoneColor = getScore(board) > 0 ? StoneColor.BLACK : StoneColor.WHITE;
         return new BoardScanResult(true, gameEnd, winningStoneColor);
     }
 
-    private StoneColor findWinner(Board board) {
+    private double getScore(Board board) {
         boolean[][] visited = new boolean[board.xSize + 1][board.ySize + 1];
         Map<StoneColor, Integer> scores = new HashMap<>();
         //initialize scoreboard
@@ -92,7 +152,7 @@ public class GoRules implements Ruleset {
                 }
             }
         }
-        return scores.get(StoneColor.BLACK) > scores.get(StoneColor.WHITE) ? StoneColor.BLACK : StoneColor.WHITE;
+        return scores.get(StoneColor.BLACK) - scores.get(StoneColor.WHITE);
     }
 
     @Override
@@ -134,22 +194,23 @@ public class GoRules implements Ruleset {
             case BLACK -> StoneColor.WHITE;
             case WHITE -> StoneColor.BLACK;
         };
-        if (hasRemainingPosition(opponentStoneColor)) return new StepResult(true, false, boardCache, null);
+        if (!getRemainingPosition(opponentStoneColor).isEmpty()) return new StepResult(true, false, boardCache, null);
         //no available position left, find the winner and end the game
         else return new StepResult(true, true, boardCache, scanBoard(boardCache).winner);
     }
 
-    private boolean hasRemainingPosition(StoneColor stoneColor) {
+    private List<Position> getRemainingPosition(StoneColor stoneColor) {
+        List<Position> remainingPositions = new ArrayList<>();
         for (Integer i = 1; i <= boardCache.xSize; i++) {
             for (Integer j = 1; j <= boardCache.ySize; j++) {
                 //if there are remaining available positions, return step result and continue the game
-                if (isAvailablePosition(new Position(i, j), stoneColor)) {
-                    return true;
+                Position p = (new Position(i, j));
+                if (isAvailablePosition(p, stoneColor)) {
+                    remainingPositions.add(p);
                 }
             }
         }
-        //no available position left, find the winner and end the game
-        return false;
+        return remainingPositions;
     }
 
     private boolean isAvailablePosition(Position position, StoneColor stoneColor) {
@@ -184,22 +245,7 @@ public class GoRules implements Ruleset {
     private int libertyCount(Board board, Position position) {
         int liberty = 0;
         boolean[][] visited = new boolean[board.xSize + 1][board.ySize + 1];
-        visited[position.x][position.y] = true;
-        Stack<Position> traverseStack = new Stack<>();
-        traverseStack.push(position);
-        while(!traverseStack.isEmpty()) {
-            Position currentVisitingPosition = traverseStack.pop();
-            for(Position p: currentVisitingPosition.connectedPositions()) {
-                //if out of bound or is already visited, ignore.
-                if (board.outOfBound(p) || visited[p.x][p.y]) continue;
-                //set visited flag
-                visited[p.x][p.y] = true;
-                //for empty space, add liberty count
-                if (!board.pieceExistAt(p)) liberty++;
-                //for unvisited allies, push to stack
-                else if (board.getStoneColorAt(p).equals(board.getStoneColorAt(position))) traverseStack.push(p);
-            }
-        }
+        liberty = getLiberty(board, liberty, visited, position);
         return liberty;
     }
 

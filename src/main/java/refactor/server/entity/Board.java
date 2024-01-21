@@ -80,4 +80,8 @@ public class Board implements Serializable {
         if(outOfBound(position) || !pieceExistAt(position)) return null;
         return pieceArray[position.x][position.y].stepCount;
     }
+
+    public boolean isEmptyCell(Position position) {
+        return !outOfBound(position) && pieceArray[position.x][position.y] == null;
+    }
 }

@@ -1,10 +1,13 @@
 package refactor.server.entity;
 
+import globals.Direction;
+import globals.StoneColor;
 import refactor.server.dto.BoardScanResult;
 import refactor.server.dto.StepResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Stack;
 
 public class GomokuRules implements Ruleset {
@@ -24,11 +27,31 @@ public class GomokuRules implements Ruleset {
             for (int j = 1; j <= board.ySize; j++) {
                 Position currentPosition = new Position(i, j);
                 if (!boardCache.pieceExistAt(currentPosition)) {
-                    actions.add(new Action(currentPosition, 0));
+                    boardCache.addPieceAt(currentPosition, boardCache.actingStoneColor, 0);
+                    //calculate action score
+                    double score = 0;
+                    score += getScore(currentPosition, 2);
+                    boardCache.pieceArray[i][j].stoneColor = switch (boardCache.actingStoneColor) {
+                        case BLACK -> StoneColor.WHITE;
+                        case WHITE -> StoneColor.BLACK;
+                    };
+                    score += 1.5 * getScore(currentPosition, 2);
+                    boardCache.pieceArray[i][j].stoneColor = null;
+                    score += 0.1 * getScore(currentPosition, 1);
+                    actions.add(new Action(currentPosition, score));
                 }
             }
         }
         return actions;
+    }
+
+    private double getScore(Position currentPosition, Integer power) {
+        double score = 0;
+        score += Math.pow(countTowards(currentPosition, Direction.UP) + countTowards(currentPosition, Direction.DOWN) - 2, power);
+        score += Math.pow(countTowards(currentPosition, Direction.LEFT) + countTowards(currentPosition, Direction.RIGHT) - 2, power);
+        score += Math.pow(countTowards(currentPosition, Direction.UPPER_LEFT) + countTowards(currentPosition, Direction.LOWER_RIGHT) - 2, power);
+        score += Math.pow(countTowards(currentPosition, Direction.UPPER_RIGHT) + countTowards(currentPosition, Direction.LOWER_LEFT) - 2, power);
+        return score;
     }
 
     @Override
@@ -64,32 +87,12 @@ public class GomokuRules implements Ruleset {
         return new StepResult(true, false, boardCache, null);
     }
 
-    enum Direction {
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT,
-        UPPER_LEFT,
-        UPPER_RIGHT,
-        LOWER_LEFT,
-        LOWER_RIGHT
-    }
-
     private int countTowards(Position p, Direction d) {
         Position tempPosition = new Position(p.x, p.y);
         int count = 0;
-        while (boardCache.getStoneColorAt(p).equals(boardCache.getStoneColorAt(tempPosition))) {
+        while (!boardCache.outOfBound(tempPosition) && Objects.equals(boardCache.getStoneColorAt(p), (boardCache.getStoneColorAt(tempPosition)))) {
             count++;
-            tempPosition = switch (d) {
-                case UP -> tempPosition.up();
-                case DOWN -> tempPosition.down();
-                case LEFT -> tempPosition.left();
-                case RIGHT -> tempPosition.right();
-                case UPPER_LEFT -> tempPosition.upperLeft();
-                case UPPER_RIGHT -> tempPosition.upperRight();
-                case LOWER_LEFT -> tempPosition.lowerLeft();
-                case LOWER_RIGHT -> tempPosition.lowerRight();
-            };
+            tempPosition = tempPosition.nextPosition(d);
         }
         return count;
     }

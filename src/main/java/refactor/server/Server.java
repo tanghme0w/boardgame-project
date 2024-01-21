@@ -13,6 +13,9 @@ import refactor.vo.RenderVO;
 import java.io.*;
 import java.util.*;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.min;
+
 public class Server {
     static Game game = null;
 
@@ -94,7 +97,7 @@ public class Server {
         Client.isAIActing = true;
         new Thread(() -> {
             try {
-                Thread.sleep(500);
+                Thread.sleep(Config.AI_STEP_INTERVAL_MS);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -112,10 +115,18 @@ public class Server {
                 actions.sort(new Comparator<Action>() {
                     @Override
                     public int compare(Action o1, Action o2) {
-                        return o2.score - o1.score;
+                        if (o2.score - o1.score < 0) return -1;
+                        if (o2.score - o1.score == 0) return 0;
+                        if (o2.score - o1.score > 0) return 1;
+                        return 0;
                     }
                 });
-                stepAt(actions.get(0).position);
+                Random random = new Random();
+                if (random.nextInt(100) > 60) stepAt(actions.get(random.nextInt(min(5, actions.size()))).position);
+                else {
+                    if (actions.get(0).score < 0) abstain();
+                    stepAt(actions.get(0).position);
+                }
             }
         }).start();
     }
@@ -196,7 +207,7 @@ public class Server {
 
     public static void stepAt(Position position) {
         //do nothing if the game hasn't started or has already ended or AI is playing.
-        if (!isGameActive) return;
+        if (!isGameActive || Client.boardMode == BoardMode.REMOVE) return;
 
         //validate position coordinates
         if (game.board.outOfBound(position)) return;
