@@ -3,10 +3,13 @@ A chess game project for oop course 2023.
 
 ## TODO
 
-- Add AI feature.
 - Cancel handler classes, define action listeners within their corresponding components.
 - Add check board legitimacy feature for Go game
 - Reduce reversi boardScan complexity to O(n)
+
+## 2.12.1
+- Fix multi-threading problems when pressing "new game" button during AI counter-play.
+- Add stop game button.
 
 ## 2.12.0
 - Add first & second level AI for go, gomoku, and reversi.
