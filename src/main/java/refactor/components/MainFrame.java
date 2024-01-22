@@ -2,6 +2,7 @@ package refactor.components;
 
 import globals.BoardMode;
 import globals.Config;
+import refactor.Client;
 import refactor.server.entity.Board;
 import refactor.server.Server;
 import refactor.handler.*;
@@ -27,6 +28,7 @@ public class MainFrame extends JFrame {
     JButton newGomokuGameButton;
     JButton newReversiGameButton;
     JButton registerButton;
+    JButton stopButton;
     Integer currentActingPlayerIndex;
     Map<Integer, Boolean> isAI;
     public MainFrame() {
@@ -108,23 +110,7 @@ public class MainFrame extends JFrame {
         remove(bottomPanel);
         if (mode.equals(BoardMode.REMOVE)) {
             remove(bottomPanel);
-            JButton confirmRemoveButton = new JButton("Confirm. Let's see who is the winner!");
-            JButton cancelRemoveButton = new JButton("Cancel");
-            confirmRemoveButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    Server.confirmRemoveDeadPieces(boardPanel.board);
-                }
-            });
-            cancelRemoveButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    Server.cancelRemoveDeadPieces();
-                }
-            });
-            List<JButton> buttons = new ArrayList<>();
-            buttons.add(confirmRemoveButton);
-            buttons.add(cancelRemoveButton);
+            List<JButton> buttons = getjButtons();
             bottomPanel = new BottomPanel(buttons);
         } else {
             initBottomPanel();
@@ -132,6 +118,27 @@ public class MainFrame extends JFrame {
         add(bottomPanel, BorderLayout.SOUTH);
         this.revalidate();
         this.repaint();
+    }
+
+    private List<JButton> getjButtons() {
+        JButton confirmRemoveButton = new JButton("Confirm. Let's see who is the winner!");
+        JButton cancelRemoveButton = new JButton("Cancel");
+        confirmRemoveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Server.confirmRemoveDeadPieces(boardPanel.board);
+            }
+        });
+        cancelRemoveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Server.cancelRemoveDeadPieces();
+            }
+        });
+        List<JButton> buttons = new ArrayList<>();
+        buttons.add(confirmRemoveButton);
+        buttons.add(cancelRemoveButton);
+        return buttons;
     }
 
     public void setCurrentActingPlayerIndex(Integer index) {
@@ -160,6 +167,16 @@ public class MainFrame extends JFrame {
         bottomPanelButtons.add(loadGameButton);
         bottomPanelButtons.add(registerButton);
 
+        if (Client.boardMode == BoardMode.IN_GAME) {
+            stopButton = new JButton("Stop Game");
+            stopButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Server.endGame(null);
+                }
+            });
+            bottomPanelButtons.add(stopButton);
+        }
         bottomPanel = new BottomPanel(bottomPanelButtons);
     }
 }

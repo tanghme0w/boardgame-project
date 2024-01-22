@@ -1,8 +1,8 @@
 package refactor.server;
 
 import globals.BoardMode;
-import globals.StoneColor;
 import globals.Config;
+import globals.StoneColor;
 import refactor.Client;
 import refactor.server.dto.BoardScanResult;
 import refactor.server.dto.StepResult;
@@ -10,10 +10,13 @@ import refactor.server.entity.*;
 import refactor.vo.PromptVO;
 import refactor.vo.RenderVO;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import static java.lang.Math.abs;
 import static java.lang.Math.min;
 
 public class Server {
@@ -25,7 +28,18 @@ public class Server {
 
     static Account account = new Account(Config.ACCOUNT_DATA_PATH);
 
+    static List<Thread> threads = new CopyOnWriteArrayList<>();
+
     public static void newGame(String rule, int[] boardSize) {
+        //wait until all running threads have finished
+        isGameActive = false;
+        for (Thread t: threads) {
+            try {
+                t.join();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
         //instantiate new game
         switch (rule.strip().toLowerCase()) {
@@ -92,7 +106,7 @@ public class Server {
             return;
         }
         Client.isAIActing = true;
-        new Thread(() -> {
+        Thread AIThread = new Thread(() -> {
             try {
                 Thread.sleep(Config.AI_STEP_INTERVAL_MS);
             } catch (Exception e) {
@@ -101,14 +115,16 @@ public class Server {
             //retrieve available steps
             List<Action> actions = game.ruleset.evaluateActions(game.board);
             //if no available steps, abstain
-            if (actions.isEmpty()) abstain();
+            if (actions.isEmpty()) {
+                abstain();
+                return;
+            }
             if (level == 1) {
                 //take random steps
                 Random random = new Random();
                 int actionIdx = random.nextInt(actions.size());
                 stepAt(actions.get(actionIdx).position);
             } else if (level == 2) {
-                if (actions.isEmpty()) abstain();
                 //choose the highest score action
                 actions.sort(new Comparator<Action>() {
                     @Override
@@ -126,10 +142,15 @@ public class Server {
                     stepAt(actions.get(0).position);
                 }
             }
-        }).start();
+        });
+        threads.add(AIThread);
+        AIThread.start();
     }
 
     public static void endGame(StoneColor winnerStoneColor) {
+        //stop the game
+        isGameActive = false;
+        Client.boardMode = BoardMode.WAIT;
         //get winner identity
         Identity winner = null;
         for (Identity id: game.identities) {
@@ -155,8 +176,6 @@ public class Server {
             render();
             Client.popUpMessage(new PromptVO(winningIdentity + "wins!"));
         }
-        isGameActive = false;
-        Client.boardMode = BoardMode.WAIT;
         render();
     }
 
@@ -244,6 +263,7 @@ public class Server {
         //if game is over, call endGame
         if (stepResult.gameOver) {
             game.board = stepResult.boardAfterStep;
+            render();
             endGame(stepResult.winner);
         }
 
@@ -287,6 +307,7 @@ public class Server {
         //if the game does not end, change the current acting player
         Logger.log(game.currentActingIdentity.player.playerName + " abstained, the turn goes to the next player");
         game.switchTurn();
+        if (isGameActive) AIStep(game.currentActingIdentity.player.AILevel);
 
         //render
         render();
