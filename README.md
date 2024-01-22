@@ -8,6 +8,9 @@ A chess game project for oop course 2023.
 - Add check board legitimacy feature for Go game
 - Reduce reversi boardScan complexity to O(n)
 
+## 2.12.0
+- Add first & second level AI for go, gomoku, and reversi.
+
 ## 2.11.0
 - Add account feature.
 

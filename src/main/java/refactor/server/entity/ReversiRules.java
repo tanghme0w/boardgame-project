@@ -8,7 +8,6 @@ import refactor.server.dto.StepResult;
 import java.util.*;
 
 public class ReversiRules implements Ruleset {
-    Board boardCache;
     Map<StoneColor, Integer> pieceCount;
     Map<StoneColor, Boolean> stepAvailable;
 
@@ -110,7 +109,22 @@ public class ReversiRules implements Ruleset {
 
     @Override
     public List<Action> evaluateActions(Board board) {
-        return null;
+        Board boardCache = new Board(board);
+        List<Action> actions = new ArrayList<>();
+        for (int i = 1; i <= board.xSize; i++) {
+            for (int j = 1; j <= board.ySize; j++) {
+                Position currentPosition = new Position(i, j);
+                if (boardCache.pieceExistAt(currentPosition)) continue;
+                double score = getScore(boardCache, currentPosition, boardCache.actingStoneColor);
+                if (score <= 0) continue;
+                //encourage landing at the boarder if possible
+                for(Position p: currentPosition.connectedPositions()) {
+                    if (boardCache.outOfBound(p)) score += 2;
+                }
+                actions.add(new Action(currentPosition, score));
+            }
+        }
+        return actions;
     }
 
     @Override
@@ -127,7 +141,7 @@ public class ReversiRules implements Ruleset {
     @Override
     public StepResult takeStep(Board board, Position position, Stack<Board> boardHistory) {
         // set cache
-        boardCache = new Board(board);
+        Board boardCache = new Board(board);
         // find opponent stone color
         StoneColor opponentStoneColor = switch (boardCache.actingStoneColor) {
             case BLACK -> StoneColor.WHITE;
@@ -173,5 +187,34 @@ public class ReversiRules implements Ruleset {
         // succeed, scan board for available spaces
         boardScanResult = this.scanBoard(boardCache);
         return new StepResult(true, boardScanResult.gameOver, boardCache, boardScanResult.winner);
+    }
+
+    public double getScore(Board board, Position position, StoneColor stoneColor) {
+        Board boardCache = new Board(board);
+        //  landing on existing piece prohibited
+        if (boardCache.pieceExistAt(position)) {
+            return 0;
+        }
+
+        // try to make step
+        //  check for occupied pieces on every direction and flip them
+        int occupiedPieces = 0;
+        for (Direction d: Direction.values()) {
+            Position p = position.nextPosition(d);
+            int occupiedPiecesCache = 0;
+            StoneColor opponentStoneColor = switch(stoneColor) {
+                case BLACK -> StoneColor.WHITE;
+                case WHITE -> StoneColor.BLACK;
+            };
+            while (boardCache.pieceExistAt(p) && Objects.equals(boardCache.getStoneColorAt(p), opponentStoneColor)) {
+                occupiedPiecesCache++;
+                p = p.nextPosition(d);
+            }
+            if (Objects.equals(boardCache.getStoneColorAt(p), boardCache.actingStoneColor)) {
+                occupiedPieces += occupiedPiecesCache;
+            }
+        }
+        //  fail if you cannot occupy other pieces
+        return occupiedPieces;
     }
 }
