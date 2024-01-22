@@ -18,7 +18,7 @@ public class GoRules implements Ruleset {
     @Override
     public List<Action> evaluateActions(Board board) {
         boardCache = new Board(board);
-        List<Action> remainingPositions = new ArrayList<>();
+        List<Action> actions = new ArrayList<>();
         for (Integer i = 1; i <= boardCache.xSize; i++) {
             for (Integer j = 1; j <= boardCache.ySize; j++) {
                 //if there are remaining available positions, return step result and continue the game
@@ -34,12 +34,13 @@ public class GoRules implements Ruleset {
                         case WHITE -> StoneColor.BLACK;
                     };
                     score += countTotalLiberty(board, opponentStoneColor) - countTotalLiberty(boardCache, opponentStoneColor);
-                    remainingPositions.add(new Action(p, score));
+                    actions.add(new Action(p, score));
                     boardCache = new Board(board);
                 }
             }
         }
-        return remainingPositions;
+        Collections.shuffle(actions);
+        return actions;
     }
 
     @Override

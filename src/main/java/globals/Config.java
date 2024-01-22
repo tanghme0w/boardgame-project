@@ -1,8 +1,7 @@
 package globals;
 
 public class Config {
-    public static Integer AI_LEVEL = 1;
-    public static Integer AI_STEP_INTERVAL_MS = 500;
+    public static Integer AI_STEP_INTERVAL_MS = 50;
     public static String ACCOUNT_DATA_PATH = "account";
     public static boolean REPLAY_WHEN_LOAD = true;
     public static boolean RANDOM_STEP_TEST = false;

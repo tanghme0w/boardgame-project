@@ -38,9 +38,6 @@ public class Server {
         for (int i = 0; i < players.size(); i++) {
             if (players.get(i) == null) {
                 generateGuestPlayer(i);
-                players.get(i).isAI = true;
-                players.get(i).AILevel = Config.AI_LEVEL;
-                players.get(i).playerName = players.get(i).playerName + " (AI) ";
             }
         }
 
@@ -104,13 +101,14 @@ public class Server {
             //retrieve available steps
             List<Action> actions = game.ruleset.evaluateActions(game.board);
             //if no available steps, abstain
-            if (actions.isEmpty()) surrender(players.indexOf(game.currentActingIdentity.player));
-            if (Config.AI_LEVEL == 1) {
+            if (actions.isEmpty()) abstain();
+            if (level == 1) {
                 //take random steps
                 Random random = new Random();
                 int actionIdx = random.nextInt(actions.size());
                 stepAt(actions.get(actionIdx).position);
-            } else if (Config.AI_LEVEL == 2) {
+            } else if (level == 2) {
+                if (actions.isEmpty()) abstain();
                 //choose the highest score action
                 actions.sort(new Comparator<Action>() {
                     @Override
@@ -122,7 +120,7 @@ public class Server {
                     }
                 });
                 Random random = new Random();
-                if (random.nextInt(100) > 60) stepAt(actions.get(random.nextInt(min(5, actions.size()))).position);
+                if (random.nextInt(100) > 80) stepAt(actions.get(random.nextInt(min(5, actions.size()))).position);
                 else {
                     if (actions.get(0).score < 0) abstain();
                     stepAt(actions.get(0).position);
@@ -181,10 +179,11 @@ public class Server {
         render();
     }
 
-    public static void logout(Integer position) {
-        Player player = players.get(position);
-        players.set(position, null);
+    public static void logout(Integer idx) {
+        Player player = players.get(idx);
+        players.set(idx, null);
         Client.popUpMessage(new PromptVO("Logout success. Goodbye, " + player.playerName + "!"));
+        Client.playerISAI.put(idx, false);
         render();
     }
 
@@ -203,6 +202,21 @@ public class Server {
         players.set(playerIdx, newGuestPlayer);
         Logger.log(newGuestPlayer.playerName + " has joined the game.");
         render();
+    }
+
+    public static void generateAIPlayer(Integer playerIdx) {
+        generateGuestPlayer(playerIdx);
+        Client.playerISAI.put(playerIdx, true);
+        players.get(playerIdx).isAI = true;
+        players.get(playerIdx).AILevel = 1;
+        players.get(playerIdx).playerName = players.get(playerIdx).playerName + " (AI) ";
+        render();
+    }
+
+    public static void setAILevel(Integer playerIndex, Integer level) {
+        Player player = players.get(playerIndex);
+        if (!player.isAI) return;
+        player.AILevel = level;
     }
 
     public static void stepAt(Position position) {
@@ -229,6 +243,7 @@ public class Server {
 
         //if game is over, call endGame
         if (stepResult.gameOver) {
+            game.board = stepResult.boardAfterStep;
             endGame(stepResult.winner);
         }
 

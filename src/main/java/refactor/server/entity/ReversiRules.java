@@ -97,7 +97,8 @@ public class ReversiRules implements Ruleset {
             }
         }
         // there are available steps left for at least one player.
-        if (stepAvailable.get(StoneColor.WHITE) || stepAvailable.get(StoneColor.BLACK)) return new BoardScanResult(true, false, null);
+        if (stepAvailable.get(StoneColor.WHITE) || stepAvailable.get(StoneColor.BLACK))
+            return new BoardScanResult(true, false, determineWinner());
         // no available spaces left. check winner.
         return new BoardScanResult(true, true, determineWinner());
     }
@@ -124,6 +125,7 @@ public class ReversiRules implements Ruleset {
                 actions.add(new Action(currentPosition, score));
             }
         }
+        Collections.shuffle(actions);
         return actions;
     }
 

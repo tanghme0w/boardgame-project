@@ -5,10 +5,7 @@ import globals.StoneColor;
 import refactor.server.dto.BoardScanResult;
 import refactor.server.dto.StepResult;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Stack;
+import java.util.*;
 
 public class GomokuRules implements Ruleset {
     Board boardCache;
@@ -42,6 +39,7 @@ public class GomokuRules implements Ruleset {
                 }
             }
         }
+        Collections.shuffle(actions);
         return actions;
     }
 
